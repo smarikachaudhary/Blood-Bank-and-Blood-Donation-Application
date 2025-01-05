@@ -27,31 +27,17 @@ const registerController = async (req, res) => {
       });
     }
 
-    if (req.body.role === "admin" && !req.body.adminName) {
-      return res.status(400).send({
-        success: false,
-        message: "Admin name is required for the admin role.",
-      });
-    }
+    const roleErrors = {
+      admin: "Admin name is required for the admin role.",
+      donor: "Donor name is required for the donor role.",
+      recipient: "Recipient name is required for the recipient role.",
+      hospital: "Hospital name is required for the hospital role.",
+    };
 
-    if (req.body.role === "donor" && !req.body.donorName) {
+    if (!req.body[`${req.body.role}Name`]) {
       return res.status(400).send({
         success: false,
-        message: "Donor name is required for the donor role.",
-      });
-    }
-
-    if (req.body.role === "recipient" && !req.body.recipientName) {
-      return res.status(400).send({
-        success: false,
-        message: "Recipient name is required for the recipient role.",
-      });
-    }
-
-    if (req.body.role === "hospital" && !req.body.hospitalName) {
-      return res.status(400).send({
-        success: false,
-        message: "Hospital name is required for the hospital role.",
+        message: roleErrors[req.body.role],
       });
     }
 
