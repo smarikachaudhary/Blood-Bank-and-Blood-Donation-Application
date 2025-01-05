@@ -9,7 +9,7 @@ const Navbar = () => {
               <ScrollLink to = "top" smooth={true} duration={1000} className="mr-3 text-[18px] font-medium">Home</ScrollLink>
               <ScrollLink to = "about" smooth={true} duration={1000} className="mr-3 text-[18px] font-medium">About Us</ScrollLink>
               <ScrollLink to = "contact" smooth={true} duration={1000} className="mr-3 text-[18px] font-medium">Contact Us</ScrollLink>
-              <Link to ="/login" smooth={true} duration={1000} className ="mr-3 text-[18px] font-medium ">Login/Signup</Link>
+              <Link to ="/login" smooth={true} duration={1000} className ="mr-3 text-[18px] font-medium ">Login</Link>
           </div>
       </div>
   )

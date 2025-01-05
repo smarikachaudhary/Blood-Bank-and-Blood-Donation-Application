@@ -18,7 +18,9 @@
     "react-redux": "^9.2.0",
     "react-router-dom": "^7.0.2",
     "react-scroll": "^1.9.0",
-    "redux-persist": "^6.0.0"
+    "react-slick": "^0.30.3",
+    "redux-persist": "^6.0.0",
+    "slick-carousel": "^1.8.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.15.0",
