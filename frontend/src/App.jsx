@@ -1,9 +1,11 @@
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 import Home from "./pages/Home";
 import Admin from "./pages/Admin";
+import Donors from "./pages/Donors";
+import Recipients from "./pages/Recipients";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Donors from "./pages/Donors";
+import AdminDonors from "./pages/AdminDonors";
 import Menu from "./components/Menu";
 import VerifyEmail from "./pages/verifyEmail";
 function App() {
@@ -37,7 +39,7 @@ function App() {
         },
         {
           path: "/admin/donors",
-          element: <Donors/>
+          element: <AdminDonors />
         },
       ]
     },
@@ -48,10 +50,18 @@ function App() {
     {
       path: "/register",
       element : <Register />
-    },
+    }, 
     {
       path: "/verify-email", 
       element: <VerifyEmail />,
+    },
+    {
+      path: "/donors", 
+      element: <Donors />,
+    },
+    {
+      path: "/recipients", 
+      element: <Recipients />,
     },
     
   ])

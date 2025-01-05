@@ -1,4 +1,5 @@
-import  { useState } from "react";
+
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { handleLogin } from "../redux/authService";
 
@@ -6,14 +7,22 @@ const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [role, setRole] = useState("admin");
+  const [message, setMessage] = useState("");
 
   const handleRoleChange = (e) => {
     setRole(e.target.value);
   };
 
-  const onSubmit = (e) => {
-    e.preventDefault(); // Prevent page reload
-    handleLogin(e, email, password, role);
+  const onSubmit = async (e) => {
+    e.preventDefault(); 
+
+  if (!email || !password || !role) {
+    setMessage("Please provide all fields.");
+    return;
+  }
+
+  const result = await handleLogin(e,email, password, role); // Pass only required arguments
+  setMessage(result.message);
   };
 
   return (
@@ -104,6 +113,15 @@ const Login = () => {
             >
               Login
             </button>
+            {message && (
+              <p
+                className={`mt-2 text-sm ${
+                  message === "Login Successful!" ? "text-green-600" : "text-red-600"
+                }`}
+              >
+                {message}
+              </p>
+            )}
             <div>
               <span>
                 Don&apos;t have an account?{" "}

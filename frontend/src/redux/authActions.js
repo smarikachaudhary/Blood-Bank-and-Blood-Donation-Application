@@ -7,11 +7,11 @@ export const userLogin = createAsyncThunk(
   async ({ role, email, password }, { rejectWithValue }) => {
     try {
       const { data } = await API.post("/auth/login", { role, email, password });
-      //store token
+
+      // Store token
       if (data.success) {
-        alert(data.message);
         localStorage.setItem("token", data.token);
-        window.location.replace("/admin");
+        window.location.replace("/admin"); // Optional: handle navigation in the calling function
       }
       return data;
     } catch (error) {
@@ -29,7 +29,6 @@ export const userRegister = createAsyncThunk(
   "auth/register",
   async (
     {
-      e,
       adminName,
       donorName,
       recipientName,
@@ -44,7 +43,6 @@ export const userRegister = createAsyncThunk(
   ) => {
     try {
       const { data } = await API.post("/auth/register", {
-        e,
         adminName,
         donorName,
         recipientName,
@@ -56,9 +54,7 @@ export const userRegister = createAsyncThunk(
         role,
       });
       if (data?.success) {
-        alert("User Registerd Successfully");
-        window.location.replace("/login");
-        // toast.success("User Registerd Successfully");
+        return data;
       }
     } catch (error) {
       console.log(error);

@@ -2,29 +2,29 @@ import { userLogin, userRegister } from "./authActions";
 import store from "../redux/store";
 
 export const handleLogin = async (e, email, password, role) => {
-  e.preventDefault();
+  //e.preventDefault();
   try {
     if (!role || !email || !password) {
-      return alert("Please provide all fields");
+      return { success: false, message: "Please provide all fields" };
     }
 
-    // Dispatch login action and await the result
     const response = await store.dispatch(userLogin({ email, password, role }));
 
     if (response.meta.requestStatus === "fulfilled") {
-      alert("Login Successful!");
+      return { success: true, message: "Login Successful!" };
     } else if (response.meta.requestStatus === "rejected") {
-      // Use the error message from the backend
-      alert(`Error: ${response.payload}`);
+      return { success: false, message: response.payload };
     }
   } catch (error) {
-    alert("An unexpected error occurred. Please try again.");
     console.error("Login Error:", error);
+    return {
+      success: false,
+      message: "An unexpected error occurred. Please try again.",
+    };
   }
 };
 
 export const handleRegister = async (
-  e,
   adminName,
   donorName,
   recipientName,
@@ -35,14 +35,7 @@ export const handleRegister = async (
   password,
   role
 ) => {
-  e.preventDefault();
   try {
-    // Validation for missing fields
-    if (!role || !email || !password) {
-      return alert("Please provide all required fields");
-    }
-
-    // Dispatch register action
     const response = await store.dispatch(
       userRegister({
         adminName,
@@ -57,15 +50,17 @@ export const handleRegister = async (
       })
     );
 
-    // Feedback upon successful registration (optional)
     if (response.meta.requestStatus === "fulfilled") {
-      alert("User Registered Successfully!");
+      return { success: true, message: "User Registered Successfully!" };
     } else if (response.meta.requestStatus === "rejected") {
-      // Use the error message from the backend
-      alert(`Error: ${response.payload}`);
+      console.log("Rejected Payload:", response.payload); //debug
+      return { success: false, message: response.payload };
     }
   } catch (error) {
-    alert("An unexpected error occurred. Please try again.");
     console.error("Registration Error:", error);
+    return {
+      success: false,
+      message: "An unexpected error occurred. Please try again.",
+    };
   }
 };
