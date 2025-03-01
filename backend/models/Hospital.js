@@ -1,15 +1,17 @@
 const mongoose = require("mongoose");
 
-const DonorSchema = new mongoose.Schema(
+const HospitalSchema = new mongoose.Schema(
   {
-    name: {
+    hospitalName: {
       type: String,
       required: true,
+      trim: true,
     },
     email: {
       type: String,
       required: true,
       unique: true,
+      lowercase: true,
     },
     phone: {
       type: String,
@@ -19,17 +21,18 @@ const DonorSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    bloodType: {
-      type: String,
-      required: true,
+    bloodStock: {
+      type: Map,
+      of: Number, // Example: { "A+": 10, "O-": 5 }
+      default: {},
     },
     status: {
       type: String,
       enum: ["pending", "approved"],
-      default: "approved",
+      default: "pending",
     },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Donor", DonorSchema);
+module.exports = mongoose.model("Hospital", HospitalSchema);

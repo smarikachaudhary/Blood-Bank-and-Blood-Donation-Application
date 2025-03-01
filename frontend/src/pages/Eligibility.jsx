@@ -1,6 +1,7 @@
 import AdminNavbar from "../components/AdminNavbar"
 
-const Hospital = () => {
+
+const Eligibility = () => {
   return (
     <div className="w-[70vw]">
       <AdminNavbar />
@@ -8,4 +9,4 @@ const Hospital = () => {
   )
 }
 
-export default Hospital
+export default Eligibility

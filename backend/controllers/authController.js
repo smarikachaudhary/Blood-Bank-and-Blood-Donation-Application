@@ -223,9 +223,38 @@ const currentUserController = async (req, res) => {
   }
 };
 
+// GET ALL REGISTERED USERS
+const getAllUsersController = async (req, res) => {
+  try {
+    // Fetch all users from the database
+    const users = await User.find();
+
+    if (!users.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No users found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Users fetched successfully!",
+      users,
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching users.",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   registerController,
   loginController,
   currentUserController,
   verifyEmail,
+  getAllUsersController,
 };

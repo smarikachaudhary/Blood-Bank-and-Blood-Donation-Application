@@ -1,6 +1,6 @@
 import AdminNavbar from "../components/AdminNavbar"
 
-const Hospital = () => {
+const AdminSettings = () => {
   return (
     <div className="w-[70vw]">
       <AdminNavbar />
@@ -8,4 +8,4 @@ const Hospital = () => {
   )
 }
 
-export default Hospital
+export default AdminSettings
