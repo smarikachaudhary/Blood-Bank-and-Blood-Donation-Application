@@ -1,15 +1,17 @@
 const mongoose = require("mongoose");
 
-const DonorSchema = new mongoose.Schema(
+const RecipientSchema = new mongoose.Schema(
   {
-    name: {
+    recipientName: {
       type: String,
       required: true,
+      trim: true,
     },
     email: {
       type: String,
       required: true,
       unique: true,
+      lowercase: true,
     },
     phone: {
       type: String,
@@ -19,17 +21,14 @@ const DonorSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    bloodType: {
-      type: String,
-      required: true,
-    },
+
     status: {
       type: String,
       enum: ["pending", "approved"],
-      default: "approved",
+      default: "pending",
     },
   },
   { timestamps: true }
 );
 
-module.exports = mongoose.model("Donor", DonorSchema);
+module.exports = mongoose.model("Recipient", RecipientSchema);

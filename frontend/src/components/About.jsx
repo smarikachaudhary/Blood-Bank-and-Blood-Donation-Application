@@ -5,32 +5,32 @@ import 'slick-carousel/slick/slick-theme.css';
 const About = () => {
   const carouselItems = [
     {
-      image: '/img1.jpg',
+      image: '/img3.jpg',
       alt: 'Mission Statement',
       caption: "Our mission: To connect donors and recipients, saving lives one drop at a time.",
     },
     {
-      image: '/img2.gif',
+      image: '/img2.jpg',
       alt: 'Blood Donation Statistics',
       caption: "Every 2 seconds, someone needs blood. Be the difference!",
     },
     {
-      image: '/banner4.jpg',
+      image: '/img1.jpg',
       alt: 'Donor Spotlight',
       caption: "Meet our heroes! Thank you to our 10,000+ donors for saving lives worldwide.",
     },
     {
-      image: '/banner6.jpg',
+      image: '/img5.png',
       alt: 'How It Works',
       caption: "It's easy to save lives! Register, donate, and make a difference.",
     },
     {
-      image: '/banner1.jpg',
+      image: '/img4.jpg',
       alt: 'Testimonials',
       caption: "John says: 'DonateHope helped me save a life—quickly and seamlessly.'",
     },
     {
-      image: '/banner8.jpg',
+      image: '/img6.jpg',
       alt: 'Call to Action',
       caption: "Join us today. Donate blood, save lives. Your kindness matters.",
     },
