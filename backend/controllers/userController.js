@@ -172,12 +172,15 @@ exports.createRecipient = async (req, res) => {
 // UPDATE Recipient
 exports.updateRecipient = async (req, res) => {
   try {
-    const updateRecipient = await Recipient.findByIdAndUpdate(
+    const updatedRecipient = await Recipient.findByIdAndUpdate(
       req.params.id,
       { $set: req.body },
       { new: true }
     );
-    res.status(201).json(updateRecipient);
+    if (!updatedRecipient) {
+      return res.status(404).json({ message: "Recipient not found" });
+    }
+    res.status(201).json(updatedRecipient);
   } catch (error) {
     res.status(500).json(error);
   }
@@ -200,12 +203,15 @@ exports.createHospital = async (req, res) => {
 
 exports.updateHospital = async (req, res) => {
   try {
-    const updateHospital = await Hospital.findByIdAndUpdate(
+    const updatedHospital = await Hospital.findByIdAndUpdate(
       req.params.id,
       { $set: req.body },
       { new: true }
     );
-    res.status(201).json(updateHospital);
+    if (!updatedHospital) {
+      return res.status(404).json({ message: "Hospital not found" });
+    }
+    res.status(201).json(updatedHospital);
   } catch (error) {
     res.status(500).json(error);
   }
