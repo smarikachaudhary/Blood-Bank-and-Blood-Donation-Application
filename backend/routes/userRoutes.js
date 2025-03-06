@@ -66,6 +66,25 @@ router.get("/recipients", async (req, res) => {
   }
 });
 
+//Fetch single recipient
+router.get("/recipients/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid recipient ID" });
+    }
+
+    const recipient = await Recipient.findById(id);
+    if (!recipient)
+      return res.status(404).json({ message: "Recipient not found" });
+
+    res.status(200).json(recipient);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
 // Fetch all hospitals
 router.get("/hospitals", async (req, res) => {
   try {
@@ -75,6 +94,25 @@ router.get("/hospitals", async (req, res) => {
     res
       .status(500)
       .json({ message: "Error fetching hospitals", error: error.message });
+  }
+});
+
+//Fetch single hospital
+router.get("/hospitals/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid hospital ID" });
+    }
+
+    const hospital = await Hospital.findById(id);
+    if (!hospital)
+      return res.status(404).json({ message: "Hospital not found" });
+
+    res.status(200).json(hospital);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
   }
 });
 
