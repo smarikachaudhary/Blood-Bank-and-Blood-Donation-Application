@@ -1,17 +1,16 @@
-// const CryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
 const bcrypt = require("bcryptjs");
+const User = require("../models/User");
 const dotenv = require("dotenv");
 const { sendVerificationCode, welcomeEmail } = require("../middlewares/email");
+
 dotenv.config();
 
-//REGISTER USER
+// REGISTER USER
 const registerController = async (req, res) => {
   try {
     const existingUser = await User.findOne({ email: req.body.email });
 
-    // Check if user already exists
     if (existingUser) {
       return res.status(400).send({
         success: false,
@@ -19,7 +18,6 @@ const registerController = async (req, res) => {
       });
     }
 
-    // Validate required fields for role
     if (!req.body.role) {
       return res.status(400).send({
         success: false,
@@ -41,59 +39,26 @@ const registerController = async (req, res) => {
       });
     }
 
-    // Validate email format
-    const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
-    if (!emailRegex.test(req.body.email)) {
-      return res.status(400).send({
-        success: false,
-        message: "Please provide a valid email address.",
-      });
-    }
-
-    // Validate password length
-    const passwordValidationError = /^(?=.*[A-Z])(?=.*\d)(?=.*[a-zA-Z]).{6,}$/;
-    if (!passwordValidationError.test(req.body.password)) {
-      return res.status(400).send({
-        success: false,
-        message:
-          "Password must contain at least one uppercase letter, one number, and a mix of characters.",
-      });
-    }
-
-    // Validate address
-    if (!req.body.address) {
-      return res.status(400).send({
-        success: false,
-        message: "Address is required.",
-      });
-    }
-
-    // Validate phone number format
-    const phoneRegex = /^\+?\d{7,15}$/;
-    if (!phoneRegex.test(req.body.phone)) {
-      return res.status(400).send({
-        success: false,
-        message: "Please provide a valid phone number.",
-      });
-    }
-
-    //email verification
-    const verificationCode = Math.floor(
-      100000 + Math.random() * 900000
-    ).toString();
-
     // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
     req.body.password = hashedPassword;
 
-    // Save new user with verification code
+    // Generate email verification code
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+
+    // Save user in the database
     const user = new User({
       ...req.body,
       password: hashedPassword,
       verificationCode,
     });
+
     await user.save();
+
+    // Send verification code to user
     sendVerificationCode(user.email, verificationCode);
 
     return res.status(201).send({
@@ -111,12 +76,11 @@ const registerController = async (req, res) => {
   }
 };
 
-// email verification
+// VERIFY EMAIL
 const verifyEmail = async (req, res) => {
   try {
     const { code } = req.body;
 
-    // Find the user with the verification code
     const user = await User.findOne({ verificationCode: code });
 
     if (!user) {
@@ -125,19 +89,16 @@ const verifyEmail = async (req, res) => {
         .json({ success: false, message: "Invalid or Expired Code" });
     }
 
-    // Check if the user is already verified
     if (user.status) {
       return res
         .status(400)
         .json({ success: false, message: "Email is already verified." });
     }
 
-    // Mark user as verified and clear the verification code
     user.status = true;
     user.verificationCode = undefined;
     await user.save();
 
-    // Send a welcome email
     await welcomeEmail(user.email, user.role);
 
     return res
@@ -151,7 +112,7 @@ const verifyEmail = async (req, res) => {
   }
 };
 
-//LOGIN USER
+// LOGIN USER
 const loginController = async (req, res) => {
   try {
     const user = await User.findOne({ email: req.body.email });
@@ -183,11 +144,12 @@ const loginController = async (req, res) => {
     }
 
     // Generate JWT
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    const token = jwt.sign(
+      { userId: user._id, role: user.role, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
 
-    // Return success response
     return res.status(200).send({
       success: true,
       message: "Login Successful!",
@@ -204,10 +166,10 @@ const loginController = async (req, res) => {
   }
 };
 
-//GET CURRENT USER
+// GET CURRENT USER
 const currentUserController = async (req, res) => {
   try {
-    const user = await User.findOne({ _id: req.body.userId });
+    const user = await User.findById(req.user.userId); // Getting user from decoded JWT
     return res.status(200).send({
       success: true,
       message: "User Fetched Successfully",
@@ -217,16 +179,15 @@ const currentUserController = async (req, res) => {
     console.log(error);
     return res.status(500).send({
       success: false,
-      message: "unable to get current user",
+      message: "Unable to get current user",
       error,
     });
   }
 };
 
-// GET ALL REGISTERED USERS
+// GET ALL USERS
 const getAllUsersController = async (req, res) => {
   try {
-    // Fetch all users from the database
     const users = await User.find();
 
     if (!users.length) {
