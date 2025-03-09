@@ -23,6 +23,8 @@ import NewHospital from "./pages/NewHospital"
 import EditDonor from "./pages/EditDonor";
 import EditRecipient from "./pages/EditRecipient";
 import EditHospital from "./pages/EditHospital";
+import AddBlood from "./pages/AddBlood";
+import EditInventroy from "./pages/EditInventroy";
 function App() {
   const Layout = () => {
     return (
@@ -99,6 +101,14 @@ function App() {
         {
           path: "/admin/inventory",
           element: <Inventory />
+        },
+        {
+          path: "/admin/addblood",
+          element: <AddBlood />
+        },
+        {
+          path: "/admin/inventory/:id",
+          element: <EditInventroy />
         },
         {
           path: "/admin/bloodrequests",
