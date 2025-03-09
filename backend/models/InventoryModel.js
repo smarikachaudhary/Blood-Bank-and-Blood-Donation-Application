@@ -28,12 +28,12 @@ const inventorySchema = new mongoose.Schema(
     donatedBy: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Donor",
-      default: null, // Only applicable for "in" transactions
+      default: null,
     },
     donatedTo: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Recipient",
-      default: null, // Only applicable for "out" transactions
+      default: null,
     },
     hospital: {
       type: mongoose.Schema.Types.ObjectId,
