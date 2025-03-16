@@ -1,13 +1,13 @@
-import { jwtDecode } from "jwt-decode"; // ✅ Fix import
+import { jwtDecode } from "jwt-decode";
 
 export const getTokenAndEmail = () => {
   const token = localStorage.getItem("token");
-  console.log("Token from localStorage:", token); // Debugging
+  console.log("Token from localStorage:", token);
 
   if (token) {
     try {
-      const decoded = jwtDecode(token); // ✅ Use jwtDecode function
-      console.log("Decoded token payload:", decoded); // Debugging
+      const decoded = jwtDecode(token);
+      console.log("Decoded token payload:", decoded);
 
       const email = decoded.email || null;
       const role = decoded.role || null;
