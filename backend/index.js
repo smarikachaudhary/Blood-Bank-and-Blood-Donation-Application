@@ -1,7 +1,10 @@
 const dotenv = require("dotenv");
+const express = require("express"); // Import express
+const path = require("path"); // Import path module (optional but good practice)
 
 const app = require("./app");
 const dbConnection = require("./utils/db");
+
 dotenv.config({ path: "./.env" });
 
 const PORT = process.env.PORT || 8000;
@@ -31,3 +34,6 @@ app.get("/", (req, res) => {
 app.use("/api/v1/auth", require("./routes/authRoutes"));
 app.use("/api/v1/users", require("./routes/userRoutes"));
 app.use("/api/v1/inventory", require("./routes/inventoryRoutes"));
+app.use("/api/v1/eligibility", require("./routes/eligibilityRoutes"));
+
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));

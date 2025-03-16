@@ -17,6 +17,9 @@ import Eligibility from "./pages/Eligibility"
 import AdminSettings from "./pages/AdminSettings";
 import AdminLogout from "./pages/AdminLogout"
 import Menu from "./components/Menu";
+import DonorMenu from "./components/DonorMenu";
+import RecipientMenu from "./components/RecipientMenu";
+import HospitalMenu from "./components/HospitalMenu";
 import VerifyEmail from "./pages/verifyEmail";
 import NewRecipient from "./pages/NewRecipient";
 import NewHospital from "./pages/NewHospital"
@@ -25,21 +28,52 @@ import EditRecipient from "./pages/EditRecipient";
 import EditHospital from "./pages/EditHospital";
 import AddBlood from "./pages/AddBlood";
 import EditInventroy from "./pages/EditInventroy";
+import getTokenAndEmail from "./redux/getTokenAndEmail";
+import { Navigate } from "react-router-dom";
+import DonorEligibility from "./pages/DonorEligibility";
+import DonorSchedulingDonations from "./pages/DonorSchedulingDonations";
+import DonorDonateBlood from "./pages/DonorDonateBlood";
+import DonorSettings from "./pages/DonorSettings";
+import RecipientMakeRequest from "./pages/RecipientMakeRequest";
+import RecipientTrackBloodRequest from "./pages/RecipientTrackBloodRequest";
+import RecipientSettings from "./pages/RecipientSettings";
+import HospitalBloodStock from "./pages/HospitalBloodStock";
+import HospitalRequsetHistory from "./pages/HospitalRequestHistory";
+import HospitalSettings from "./pages/HospitalSettings";
+
 function App() {
   const Layout = () => {
-    return (
-      <div className = "flex">
-        <div>
-          <h1>
-            <Menu />
-          </h1>
-        </div>
-        <div>
-          <Outlet />
-        </div>
-      </div>
-    )
+
+  const user = getTokenAndEmail();
+  const role = user?.role; 
+  let SidebarMenu;
+  if (role === "admin") {
+    SidebarMenu = <Menu />;
+  } else if (role === "donor") {
+    SidebarMenu = <DonorMenu />;
+  } else if (role === "recipient") {
+    SidebarMenu = <RecipientMenu />;
+  } else if (role === "hospital") {
+    SidebarMenu = <HospitalMenu />;
+  } else {
+    SidebarMenu = null; 
   }
+    
+  if (!role) {
+    return <Navigate to="/login" />;
+  }
+
+  return (
+    <div className="flex">
+      <div>
+        <h1>{SidebarMenu}</h1>
+      </div>
+      <div>
+        <Outlet />
+      </div>
+    </div>
+  );
+};
 
   const router = createBrowserRouter([
     {
@@ -142,15 +176,73 @@ function App() {
     },
     {
       path: "/donors", 
-      element: <Donors />,
+      element: <Layout />,
+      children: [
+        {
+          path: "/donors",
+          element: <Donors/>
+        },
+        {
+          path: "/donors/eligibility",
+          element: <DonorEligibility />
+        },
+        {
+          path: "/donors/schedulingdonations",
+          element: <DonorSchedulingDonations />
+        },
+        {
+          path: "/donors/donateblood",
+          element: <DonorDonateBlood />
+        },
+        {
+          path: "/donors/settings",
+          element: <DonorSettings />
+        },
+      ]
     },
     {
       path: "/recipients", 
-      element: <Recipients />,
+      element: <Layout />,
+      children: [
+        {
+          path: "/recipients",
+          element: <Recipients/>
+        },
+        {
+          path: "/recipients/makerequest",
+          element: <RecipientMakeRequest />
+        },
+        {
+          path: "/recipients/trackbloodrequest",
+          element: <RecipientTrackBloodRequest />
+        },
+        {
+          path: "/recipients/settings",
+          element: <RecipientSettings />
+        },
+      ]
     },
     {
       path: "/hospital",
-      element: <Hospital />
+      element: <Layout />,
+      children: [
+        {
+          path: "/hospital",
+          element: <Hospital/>
+        },
+        {
+          path: "/hospital/bloodstock",
+          element: <HospitalBloodStock />
+        },
+        {
+          path: "/hospital/requesthistory",
+          element: <HospitalRequsetHistory />
+        },
+        {
+          path: "/hospital/settings",
+          element: <HospitalSettings />
+        },
+      ]
     }
     
   ])
@@ -162,4 +254,4 @@ function App() {
   )
 }
 
-export default App  
+export default App   
