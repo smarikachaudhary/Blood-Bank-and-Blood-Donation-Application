@@ -5,8 +5,6 @@ import { getTokenAndEmail } from "../redux/getTokenAndEmail";
 import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
-
 const DonorEligibility = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [formData, setFormData] = useState({
@@ -43,26 +41,31 @@ const DonorEligibility = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  const formDataToSend = new FormData();
-  Object.entries(formData).forEach(([key, value]) => {
-    formDataToSend.append(key, value);
-  });
-
-  try {
-    const response = await API.post("/eligibility/submit", formDataToSend, {
-      headers: { "Content-Type": "multipart/form-data" },
+    e.preventDefault();
+    const formDataToSend = new FormData();
+    Object.entries(formData).forEach(([key, value]) => {
+      formDataToSend.append(key, value);
     });
-    toast.success(response.data.message, { position: "top-right" }); // Use string for position
-  } catch (error) {
-    console.error("Error submitting eligibility request:", error);
-    toast.error("Submission failed. Please try again.", { position: "top-right" });
-  }
-};
- 
+
+    try {
+      const response = await API.post("/eligibility/submit", formDataToSend, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      toast.success(response.data.message, { position: "top-right" }); // Use string for position
+    } catch (error) {
+      console.error("Error submitting eligibility request:", error);
+      toast.error("Submission failed. Please try again.", {
+        position: "top-right",
+      });
+    }
+  };
 
   return (
-    <div className={`w-full px-3 sm:px-6 lg:px-8 ${isSidebarCollapsed ? "ml-[10px]" : "ml-[10px]"}`}>
+    <div
+      className={`w-full px-3 sm:px-6 lg:px-8 ${
+        isSidebarCollapsed ? "ml-[10px]" : "ml-[10px]"
+      }`}
+    >
       <DonorNavbar />
       <div className="flex items-center justify-center m-[30px] pt-10">
         <h1 className="text-[20px] font-semibold">Check Eligibility</h1>
@@ -108,7 +111,9 @@ const DonorEligibility = () => {
         </div>
 
         <div className="mb-8">
-          <label className="block text-gray-700 font-semibold">Weight (kg)</label>
+          <label className="block text-gray-700 font-semibold">
+            Weight (kg)
+          </label>
           <input
             type="number"
             name="weight"
@@ -120,7 +125,9 @@ const DonorEligibility = () => {
         </div>
 
         <div className="mb-8">
-          <label className="block text-gray-700 font-semibold">Upload Document</label>
+          <label className="block text-gray-700 font-semibold">
+            Upload Document
+          </label>
           <input
             type="file"
             name="document"
@@ -132,7 +139,7 @@ const DonorEligibility = () => {
 
         <button
           type="submit"
-          className="w-full bg-[#800000] text-white py-2 rounded-md hover:bg-[#800000] transition duration-300"
+          className="w-full bg-[#800000] text-white py-2 rounded-md hover:bg-red-600 transition duration-300"
         >
           Submit
         </button>

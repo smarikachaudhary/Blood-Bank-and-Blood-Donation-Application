@@ -37,3 +37,5 @@ app.use("/api/v1/inventory", require("./routes/inventoryRoutes"));
 app.use("/api/v1/eligibility", require("./routes/eligibilityRoutes"));
 
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/api/v1/request", require("./routes/requestRoutes"));
+app.use("/api/v1/donation", require("./routes/donationRoutes"));
