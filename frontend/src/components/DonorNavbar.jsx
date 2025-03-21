@@ -51,7 +51,7 @@ const DonorNavbar = () => {
   };
 
   return (
-    <div className="bg-[#c5a37d] h-[60px] flex items-center justify-between px-6 shadow-md fixed top-0 left-0 right-0 z-10">
+    <div className="bg-gray-100 h-[60px] flex items-center justify-between px-6 shadow-md fixed top-0 left-0 right-0 z-10">
       <div className="flex items-center space-x-2">
         <img src="/Logo.png" alt="Logo" className="w-[100px] h-[40px]" />
       </div>
