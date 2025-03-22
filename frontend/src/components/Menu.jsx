@@ -10,12 +10,12 @@ import {
   // FaCog,
   // FaElementor,
   FaHandHoldingWater,
- // FaHdd,
+  // FaHdd,
   FaHome,
   FaHospital,
- // FaRibbon,
- // FaSignOutAlt,
-//  FaStamp,
+  // FaRibbon,
+  // FaSignOutAlt,
+  //  FaStamp,
   FaTint,
   FaUser,
   FaUsers,
@@ -37,7 +37,7 @@ const Menu = () => {
 
   return (
     <div
-      className={`h-[110vh] bg-gray-100 shadow-lg transition-width duration-300 pt-20 ${
+      className={`h-[120vh] bg-gray-100 shadow-lg transition-width duration-300 pt-20 ${
         isCollapsed ? "w-[80px]" : "w-[350px]"
       }`}
     >
@@ -60,9 +60,7 @@ const Menu = () => {
         <Link to="/admin" onClick={() => handleLinkActive("/admin")}>
           <li
             className={`flex items-center text-[20px] font-semibold cursor-pointer mt-[10px] transition-colors duration-100 ${
-              activeLink === "/admin"
-                ? "bg-[#800000] p-[10px] text-white"
-                : ""
+              activeLink === "/admin" ? "bg-[#800000] p-[10px] text-white" : ""
             } ${isCollapsed ? "w-[50px] justify-center" : "w-[300px]"}`}
           >
             <FaHome
@@ -72,9 +70,12 @@ const Menu = () => {
             />
             {!isCollapsed && "Home"}
           </li>
-        </Link> 
+        </Link>
         <hr className="w-full my-[20px] border-gray-300" />
-         <Link to="/admin/users" onClick={() => handleLinkActive("/admin/users")}>
+        <Link
+          to="/admin/users"
+          onClick={() => handleLinkActive("/admin/users")}
+        >
           <li
             className={`flex items-center text-[20px] font-semibold cursor-pointer mt-[20px] transition-colors duration-100 ${
               activeLink === "/admin/users"
@@ -91,7 +92,10 @@ const Menu = () => {
           </li>
         </Link>
 
-          <Link to="/admin/donors" onClick={() => handleLinkActive("/admin/donors")}>
+        <Link
+          to="/admin/donors"
+          onClick={() => handleLinkActive("/admin/donors")}
+        >
           <li
             className={`flex items-center text-[20px] font-semibold cursor-pointer mt-[20px] transition-colors duration-100 ${
               activeLink === "/admin/donors"
@@ -107,7 +111,10 @@ const Menu = () => {
             {!isCollapsed && "Donors"}
           </li>
         </Link>
-         <Link to="/admin/recipients" onClick={() => handleLinkActive("/admin/recipients")}>
+        <Link
+          to="/admin/recipients"
+          onClick={() => handleLinkActive("/admin/recipients")}
+        >
           <li
             className={`flex items-center text-[20px] font-semibold cursor-pointer mt-[20px] transition-colors duration-100 ${
               activeLink === "/admin/recipients"
@@ -117,13 +124,18 @@ const Menu = () => {
           >
             <FaUser
               className={`mr-[15px] ${
-                activeLink === "/admin/recipients" ? "text-white" : "text-[#800000]"
+                activeLink === "/admin/recipients"
+                  ? "text-white"
+                  : "text-[#800000]"
               } ${isCollapsed ? "mr-0" : ""}`}
             />
             {!isCollapsed && "Recipients"}
           </li>
         </Link>
-        <Link to="/admin/hospital" onClick={() => handleLinkActive("/admin/hospital")}>
+        <Link
+          to="/admin/hospital"
+          onClick={() => handleLinkActive("/admin/hospital")}
+        >
           <li
             className={`flex items-center text-[20px] font-semibold cursor-pointer mt-[20px] transition-colors duration-100 ${
               activeLink === "/admin/hospital"
@@ -133,14 +145,19 @@ const Menu = () => {
           >
             <FaHospital
               className={`mr-[15px] ${
-                activeLink === "/admin/hospital" ? "text-white" : "text-[#800000]"
+                activeLink === "/admin/hospital"
+                  ? "text-white"
+                  : "text-[#800000]"
               } ${isCollapsed ? "mr-0" : ""}`}
             />
             {!isCollapsed && "Hospital"}
           </li>
         </Link>
         <hr className="w-full my-[20px] border-gray-300" />
-        <Link to="/admin/inventory" onClick={() => handleLinkActive("/admin/inventory")}>
+        <Link
+          to="/admin/inventory"
+          onClick={() => handleLinkActive("/admin/inventory")}
+        >
           <li
             className={`flex items-center text-[20px] font-semibold cursor-pointer mt-[20px] transition-colors duration-100 ${
               activeLink === "/admin/inventory"
@@ -150,14 +167,40 @@ const Menu = () => {
           >
             <FaBox
               className={`mr-[15px] ${
-                activeLink === "/admin/inventory" ? "text-white" : "text-[#800000]"
+                activeLink === "/admin/inventory"
+                  ? "text-white"
+                  : "text-[#800000]"
               } ${isCollapsed ? "mr-0" : ""}`}
             />
             {!isCollapsed && "Inventory"}
           </li>
         </Link>
         <hr className="w-full my-[20px] border-gray-300" />
-        <Link to="/admin/bloodrequests" onClick={() => handleLinkActive("/admin/bloodrequests")}>
+        <Link
+          to="/admin/donations"
+          onClick={() => handleLinkActive("/admin/donations")}
+        >
+          <li
+            className={`flex items-center text-[20px] font-semibold cursor-pointer mt-[20px] transition-colors duration-100 ${
+              activeLink === "/admin/donations"
+                ? "bg-[#800000] p-[10px] text-white"
+                : ""
+            } ${isCollapsed ? "w-[50px] justify-center" : "w-[300px]"}`}
+          >
+            <FaTint
+              className={`mr-[15px] ${
+                activeLink === "/admin/donations"
+                  ? "text-white"
+                  : "text-[#800000]"
+              } ${isCollapsed ? "mr-0" : ""}`}
+            />
+            {!isCollapsed && "Blood Donations"}
+          </li>
+        </Link>
+        <Link
+          to="/admin/bloodrequests"
+          onClick={() => handleLinkActive("/admin/bloodrequests")}
+        >
           <li
             className={`flex items-center text-[20px] font-semibold cursor-pointer mt-[20px] transition-colors duration-100 ${
               activeLink === "/admin/bloodrequests"
@@ -167,13 +210,18 @@ const Menu = () => {
           >
             <FaTint
               className={`mr-[15px] ${
-                activeLink === "/admin/bloodrequests" ? "text-white" : "text-[#800000]"
+                activeLink === "/admin/bloodrequests"
+                  ? "text-white"
+                  : "text-[#800000]"
               } ${isCollapsed ? "mr-0" : ""}`}
             />
             {!isCollapsed && "Blood Requests"}
           </li>
         </Link>
-        <Link to="/admin/eligibility" onClick={() => handleLinkActive("/admin/eligibility")}>
+        <Link
+          to="/admin/eligibility"
+          onClick={() => handleLinkActive("/admin/eligibility")}
+        >
           <li
             className={`flex items-center text-[20px] font-semibold cursor-pointer mt-[20px] transition-colors duration-100 ${
               activeLink === "/admin/eligibility"
@@ -183,14 +231,19 @@ const Menu = () => {
           >
             <FaCheckCircle
               className={`mr-[15px] ${
-                activeLink === "/admin/eligibility" ? "text-white" : "text-[#800000]"
+                activeLink === "/admin/eligibility"
+                  ? "text-white"
+                  : "text-[#800000]"
               } ${isCollapsed ? "mr-0" : ""}`}
             />
             {!isCollapsed && "Eligibility"}
           </li>
         </Link>
         <hr className="w-full my-[20px] border-gray-300" />
-        <Link to="/admin/logout" onClick={() => handleLinkActive("/admin/logout")}>
+        <Link
+          to="/admin/logout"
+          onClick={() => handleLinkActive("/admin/logout")}
+        >
           <li
             className={`flex items-center text-[20px] font-semibold cursor-pointer mt-[20px] transition-colors duration-100 ${
               activeLink === "/admin/logout"
@@ -206,7 +259,6 @@ const Menu = () => {
             {!isCollapsed && "Settings"}
           </li>
         </Link>
-        
       </ul>
     </div>
   );
