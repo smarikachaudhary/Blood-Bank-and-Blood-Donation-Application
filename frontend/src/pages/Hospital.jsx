@@ -1,11 +1,11 @@
-import AdminNavbar from "../components/AdminNavbar"
+import HospitalNavbar from "../components/HospitalNavbar";
 
 const Hospital = () => {
   return (
     <div className="w-[70vw]">
-      <AdminNavbar />
+      <HospitalNavbar />
     </div>
-  )
-}
+  );
+};
 
-export default Hospital
+export default Hospital;
