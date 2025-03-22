@@ -3,7 +3,7 @@ import { useState, useRef, useEffect } from "react";
 import API from "../redux/API";
 import getTokenAndEmail from "../redux/getTokenAndEmail";
 
-const DonorNavbar = () => {
+const HospitalNavbar = () => {
   const [query, setQuery] = useState("");
   const [activeDropdown, setActiveDropdown] = useState(null);
   const [notifications, setNotifications] = useState([]);
@@ -17,14 +17,14 @@ const DonorNavbar = () => {
   const [selectedDocument, setSelectedDocument] = useState(null);
 
   const userData = getTokenAndEmail();
-  const donorId = userData?.userId;
+  const hospitalId = userData?.userId;
 
   useEffect(() => {
     const fetchNotifications = async () => {
-      if (!donorId) return;
+      if (!hospitalId) return;
 
       try {
-        const res = await API.get(`/eligibility/notifications/${donorId}`);
+        const res = await API.get(`/eligibility/notifications/${hospitalId}`);
         setNotifications(res.data);
       } catch (error) {
         console.error("Error fetching notifications:", error);
@@ -32,15 +32,15 @@ const DonorNavbar = () => {
     };
 
     fetchNotifications();
-  }, [donorId]);
+  }, [hospitalId]);
 
   useEffect(() => {
     const fetchDocument = async () => {
-      if (!donorId) return;
+      if (!hospitalId) return;
 
       try {
         const res = await API.get(
-          `/upload/get-citizenship-document/${donorId}`
+          `/upload/get-citizenship-document/${hospitalId}`
         );
         const documentPath = res.data.documentUrl;
 
@@ -61,7 +61,7 @@ const DonorNavbar = () => {
     };
 
     fetchDocument();
-  }, [donorId]);
+  }, [hospitalId]);
 
   // Function to handle document viewing (fetch from the database)
   const handleViewDocument = async (userId) => {
@@ -97,7 +97,7 @@ const DonorNavbar = () => {
 
     if (dropdown === "notifications" && hasUnreadNotifications) {
       try {
-        await API.put(`/eligibility/notifications/mark-read/${donorId}`);
+        await API.put(`/eligibility/notifications/mark-read/${hospitalId}`);
         setNotifications((prev) =>
           prev.map((notif) => ({ ...notif, read: true }))
         );
@@ -116,7 +116,7 @@ const DonorNavbar = () => {
 
     try {
       const res = await API.post(
-        `/upload/upload-citizenship/${donorId}`,
+        `/upload/upload-citizenship/${hospitalId}`,
         formData,
         {
           headers: { "Content-Type": "multipart/form-data" },
@@ -200,7 +200,7 @@ const DonorNavbar = () => {
                 {documentUploaded && (
                   <div
                     className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                    onClick={() => handleViewDocument(donorId)}
+                    onClick={() => handleViewDocument(hospitalId)}
                   >
                     View Document
                   </div>
@@ -279,4 +279,4 @@ const DonorNavbar = () => {
   );
 };
 
-export default DonorNavbar;
+export default HospitalNavbar;

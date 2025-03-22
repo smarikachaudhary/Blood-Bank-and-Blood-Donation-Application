@@ -66,6 +66,10 @@ const UserSchema = new mongoose.Schema(
       default: false,
     },
     verificationCode: String,
+    citizenshipDocument: {
+      type: String, // This will store the file path
+      default: null,
+    },
   },
   { timestamps: true }
 );
