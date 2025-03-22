@@ -4,7 +4,7 @@ import { Link, useLocation, useNavigate } from "react-router-dom";
 import { FaTrash } from "react-icons/fa";
 import AdminNavbar from "../components/AdminNavbar";
 import API from "../redux/API";
-import {getTokenAndEmail} from "../redux/getTokenAndEmail"; 
+import { getTokenAndEmail } from "../redux/getTokenAndEmail";
 
 const AdminInventory = () => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -17,7 +17,7 @@ const AdminInventory = () => {
   // Fetch all inventory
   useEffect(() => {
     const getInventory = async () => {
-      const tokenAndEmail = getTokenAndEmail(); 
+      const tokenAndEmail = getTokenAndEmail();
 
       // Handle null case
       if (!tokenAndEmail) {
@@ -26,7 +26,6 @@ const AdminInventory = () => {
         return;
       }
 
-      
       const { token, email, role, userId } = tokenAndEmail;
 
       try {
@@ -34,7 +33,7 @@ const AdminInventory = () => {
           headers: { Authorization: `Bearer ${token}` },
           Email: email,
           Role: role,
-          UserID: userId
+          UserID: userId,
         });
 
         // Handle response
@@ -64,22 +63,20 @@ const AdminInventory = () => {
     }
   }, [location.state]);
 
-
   const handleDelete = async (id) => {
-  try {
-    const response = await API.delete(`/inventory/${id}`, {
-      headers: {
-        Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure token is included
-      },
-    });
+    try {
+      const response = await API.delete(`/inventory/${id}`, {
+        headers: {
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure token is included
+        },
+      });
 
-    console.log("Deleted successfully:", response.data);
-    setInventory(inventory.filter(item => item._id !== id));
-  } catch (error) {
-    console.error("Error deleting inventory:", error);
-  }
-};
-
+      console.log("Deleted successfully:", response.data);
+      setInventory(inventory.filter((item) => item._id !== id));
+    } catch (error) {
+      console.error("Error deleting inventory:", error);
+    }
+  };
 
   // Handle sidebar collapse
   useEffect(() => {
@@ -136,7 +133,10 @@ const AdminInventory = () => {
       headerName: "Delete",
       width: 150,
       renderCell: (params) => (
-        <FaTrash className="text-red-500 cursor-pointer m-2" onClick={() => handleDelete(params.row._id)} />
+        <FaTrash
+          className="text-red-500 cursor-pointer m-2"
+          onClick={() => handleDelete(params.row._id)}
+        />
       ),
     },
   ];

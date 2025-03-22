@@ -46,9 +46,7 @@ const DonorMenu = () => {
         <Link to="/donors" onClick={() => handleLinkActive("/donors")}>
           <li
             className={`flex items-center text-[20px] font-semibold cursor-pointer mt-[10px] transition-colors duration-100 ${
-              activeLink === "/donors"
-                ? "bg-[#800000] p-[10px] text-white"
-                : ""
+              activeLink === "/donors" ? "bg-[#800000] p-[10px] text-white" : ""
             } ${isCollapsed ? "w-[50px] justify-center" : "w-[300px]"}`}
           >
             <FaHome
@@ -58,9 +56,12 @@ const DonorMenu = () => {
             />
             {!isCollapsed && "Home"}
           </li>
-        </Link> 
+        </Link>
         <hr className="w-full my-[20px] border-gray-300" />
-         <Link to="/donors/eligibility" onClick={() => handleLinkActive("/donors/eligibility")}>
+        <Link
+          to="/donors/eligibility"
+          onClick={() => handleLinkActive("/donors/eligibility")}
+        >
           <li
             className={`flex items-center text-[20px] font-semibold cursor-pointer mt-[20px] transition-colors duration-100 ${
               activeLink === "/donors/eligibility"
@@ -70,14 +71,19 @@ const DonorMenu = () => {
           >
             <FaCheckCircle
               className={`mr-[15px] ${
-                activeLink === "/donors/eligibility" ? "text-white" : "text-[#800000]"
+                activeLink === "/donors/eligibility"
+                  ? "text-white"
+                  : "text-[#800000]"
               } ${isCollapsed ? "mr-0" : ""}`}
             />
             {!isCollapsed && "Check Eligibility"}
           </li>
         </Link>
 
-          <Link to="/donors/schedulingdonations" onClick={() => handleLinkActive("/donors/schedulingdonations")}>
+        <Link
+          to="/donors/schedulingdonations"
+          onClick={() => handleLinkActive("/donors/schedulingdonations")}
+        >
           <li
             className={`flex items-center text-[20px] font-semibold cursor-pointer mt-[20px] transition-colors duration-100 ${
               activeLink === "/donors/schedulingdonations"
@@ -87,13 +93,18 @@ const DonorMenu = () => {
           >
             <FaCalendar
               className={`mr-[15px] ${
-                activeLink === "/donors/schedulingdonations" ? "text-white" : "text-[#800000]"
+                activeLink === "/donors/schedulingdonations"
+                  ? "text-white"
+                  : "text-[#800000]"
               } ${isCollapsed ? "mr-0" : ""}`}
             />
             {!isCollapsed && "Schedule Donation"}
           </li>
         </Link>
-         <Link to="/donors/donateblood" onClick={() => handleLinkActive("/donors/donateblood")}>
+        <Link
+          to="/donors/donateblood"
+          onClick={() => handleLinkActive("/donors/donateblood")}
+        >
           <li
             className={`flex items-center text-[20px] font-semibold cursor-pointer mt-[20px] transition-colors duration-100 ${
               activeLink === "/donors/donateblood"
@@ -103,14 +114,19 @@ const DonorMenu = () => {
           >
             <FaHandHoldingWater
               className={`mr-[15px] ${
-                activeLink === "/donors/donateblood" ? "text-white" : "text-[#800000]"
+                activeLink === "/donors/donateblood"
+                  ? "text-white"
+                  : "text-[#800000]"
               } ${isCollapsed ? "mr-0" : ""}`}
             />
-            {!isCollapsed && "Donate Blood"}
+            {!isCollapsed && "Store Blood"}
           </li>
         </Link>
-         <hr className="w-full my-[20px] border-gray-300" />
-        <Link to="/donors/settings" onClick={() => handleLinkActive("/donors/settings")}>
+        <hr className="w-full my-[20px] border-gray-300" />
+        <Link
+          to="/donors/settings"
+          onClick={() => handleLinkActive("/donors/settings")}
+        >
           <li
             className={`flex items-center text-[20px] font-semibold cursor-pointer mt-[20px] transition-colors duration-100 ${
               activeLink === "/donors/settings"
@@ -120,7 +136,9 @@ const DonorMenu = () => {
           >
             <FaCog
               className={`mr-[15px] ${
-                activeLink === "/donors/settings" ? "text-white" : "text-[#800000]"
+                activeLink === "/donors/settings"
+                  ? "text-white"
+                  : "text-[#800000]"
               } ${isCollapsed ? "mr-0" : ""}`}
             />
             {!isCollapsed && "Settings"}
