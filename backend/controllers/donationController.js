@@ -29,8 +29,13 @@ exports.submitDonation = async (req, res) => {
     request.donatedQuantity = (request.donatedQuantity || 0) + donatedQuantity;
 
     // Check if the request is fully met
-    if (request.donatedQuantity >= request.requestedQuantity) {
+    if (request.donatedQuantity == request.requestedQuantity) {
       await Request.deleteOne({ _id: request._id }); // Remove the request if fulfilled
+    } else if (request.donatedQuantity >= request.requestedQuantity) {
+      // return res
+      //   .status(400)
+      //   .json({ message: "Limit exceeds, please donate as per requirements" });
+      console.log("Limit exceeds, please donate as per requirements");
     } else {
       await request.save(); // Save updated request if not fully met
     }
