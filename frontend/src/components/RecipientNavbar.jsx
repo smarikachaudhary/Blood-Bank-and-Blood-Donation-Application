@@ -16,6 +16,7 @@ const RecipientNavbar = () => {
   const [showForm, setShowForm] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [documentUploaded, setDocumentUploaded] = useState(false);
+
   const userData = getTokenAndEmail();
   const recipientId = userData?.userId;
 
@@ -197,9 +198,15 @@ const RecipientNavbar = () => {
             {showForm && (
               <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
                 <div className="bg-white p-6 rounded-md w-[400px] shadow-lg relative">
-                  <h1 className="text-lg text-black font-semibold pb-3">
-                    Make Blood Request
-                  </h1>
+                  <div className="flex justify-between items-center mb-4">
+                    <h1 className="text-lg text-black font-semibold">
+                      Make Blood Request
+                    </h1>
+                    <FaTimes
+                      className="text-gray-500 cursor-pointer text-lg"
+                      onClick={toggleForm}
+                    />
+                  </div>
                   <form onSubmit={handleSubmit} className="space-y-2">
                     <div className="pb-3">
                       <label
@@ -250,7 +257,6 @@ const RecipientNavbar = () => {
                         required
                       />
                     </div>
-
                     <div className="pb-3">
                       <label
                         htmlFor="requestedDateTime"
@@ -342,15 +348,8 @@ const RecipientNavbar = () => {
                       </label>
                     </div>
                     <button
-                      type="button"
-                      onClick={toggleForm}
-                      className="text-gray-500 text-xl absolute top-2 right-2"
-                    >
-                      &times;
-                    </button>
-                    <button
                       type="submit"
-                      className="px-3 py-1 bg-[#800000] text-white rounded mt-4"
+                      className="px-3 py-1 bg-[#800000] text-white rounded mt-4 w-full"
                     >
                       Submit
                     </button>
@@ -410,7 +409,6 @@ const RecipientNavbar = () => {
               className="absolute top-2 right-2 text-gray-600 cursor-pointer text-lg"
               onClick={() => setShowUploadModal(false)}
             />
-
             <h2 className="text-lg font-semibold mb-4">Upload Citizenship</h2>
             <input
               type="file"
@@ -439,7 +437,6 @@ const RecipientNavbar = () => {
               &times;
             </button>
             <h2 className="font-semibold mb-2 text-lg">Document</h2>
-
             {selectedDocument.endsWith(".pdf") ? (
               <iframe
                 src={selectedDocument}
