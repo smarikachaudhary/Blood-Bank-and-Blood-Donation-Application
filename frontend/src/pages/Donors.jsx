@@ -16,8 +16,9 @@ const Donors = () => {
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  // Initialize user data and sidebar state
+  // Initialize user data and fetch requests
   useEffect(() => {
     const sidebar = document.querySelector(".sidebar");
     if (sidebar) {
@@ -33,21 +34,23 @@ const Donors = () => {
         donorId: userData.userId || "",
       }));
     }
-  }, []);
 
-  // Fetch blood requests
-  useEffect(() => {
-    const fetchRequests = async () => {
-      try {
-        const response = await API.get("/request/getrequest");
-        setRequests(response.data);
-      } catch (error) {
-        console.error("Error fetching blood requests:", error);
-        setError("Failed to load requests. Please refresh the page.");
-      }
-    };
     fetchRequests();
   }, []);
+
+  const fetchRequests = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await API.get("/request/getrequest");
+      setRequests(response.data.filter((req) => req.status !== "Fulfilled"));
+    } catch (error) {
+      console.error("Error fetching blood requests:", error);
+      setError("Failed to load requests. Please refresh the page.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleDonateClick = (request) => {
     setSelectedRequest(request);
@@ -60,7 +63,6 @@ const Donors = () => {
   };
 
   const handleSubmit = async () => {
-    // Validate inputs
     if (!donationData.donorName.trim()) {
       setError("Please enter your name");
       return;
@@ -94,10 +96,18 @@ const Donors = () => {
       const response = await API.post("/donation/submit", requestBody);
 
       if (response.data.success) {
-        // Refresh requests after successful submission
-        const updatedRequests = await API.get("/request/getrequest");
-        setRequests(updatedRequests.data);
+        // Optimistically update the UI
+        setRequests((prev) =>
+          prev.filter(
+            (req) =>
+              !response.data.fulfilledRequestIds?.includes(req._id) &&
+              req._id !== selectedRequest._id
+          )
+        );
         setSelectedRequest(null);
+
+        // Refresh data from server to ensure consistency
+        setTimeout(fetchRequests, 500);
       } else {
         setError(response.data.message || "Donation submission failed");
       }
@@ -131,10 +141,20 @@ const Donors = () => {
         </div>
       )}
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-10">
-        {requests
-          .filter((request) => request.status !== "Fulfilled")
-          .map((request) => (
+      {/* Loading and Content States */}
+      {isLoading ? (
+        <div className="flex justify-center items-center h-64 px-10">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#800000]"></div>
+        </div>
+      ) : requests.length === 0 ? (
+        <div className="px-10">
+          <p className="text-gray-600 text-center py-8">
+            No active blood requests found
+          </p>
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 px-10">
+          {requests.map((request) => (
             <div
               key={request._id}
               className="bg-white shadow-lg rounded-lg p-4 transition-transform hover:scale-105"
@@ -185,11 +205,12 @@ const Donors = () => {
                 className="mt-4 w-full bg-[#800000] text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
                 onClick={() => handleDonateClick(request)}
               >
-                Request Donation
+                Donate Now
               </button>
             </div>
           ))}
-      </div>
+        </div>
+      )}
 
       {selectedRequest && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
@@ -252,6 +273,7 @@ const Donors = () => {
                   }
                 />
               </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   Blood Type
@@ -284,12 +306,13 @@ const Donors = () => {
                     type="number"
                     className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     value={donationData.donatedQuantity}
-                    onChange={(e) =>
+                    onChange={(e) => {
+                      const value = Number(e.target.value);
                       setDonationData({
                         ...donationData,
-                        donatedQuantity: Math.max(0, e.target.value),
-                      })
-                    }
+                        donatedQuantity: isNaN(value) ? "" : Math.max(0, value),
+                      });
+                    }}
                     min="1"
                     required
                   />
@@ -332,12 +355,6 @@ const Donors = () => {
                 )}
               </button>
             </div>
-            <button
-              className="mt-4 bg-[#800000] text-white px-4 py-2 rounded-lg hover:bg-red-600"
-              onClick={handleSubmit}
-            >
-              Submit Donation Request
-            </button>
           </div>
         </div>
       )}
