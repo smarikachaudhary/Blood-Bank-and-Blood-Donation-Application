@@ -1,73 +1,149 @@
 const Donation = require("../models/Donation");
 const Request = require("../models/Request");
-// Submit a donation
+
 exports.submitDonation = async (req, res) => {
   try {
-    const { donatedBy, donationDate, bloodType, donatedQuantity } = req.body;
+    console.log("Incoming donation data:", req.body);
 
-    if (!donatedBy || !donationDate || !bloodType || !donatedQuantity) {
-      return res.status(400).json({ message: "All fields are required." });
-    }
-
-    // Save the donation
-    const newDonation = new Donation({
+    const {
       donatedBy,
+      donorEmail,
+      donorId,
       donationDate,
       bloodType,
       donatedQuantity,
-    });
-    await newDonation.save();
+      requestedQuantity,
+    } = req.body;
 
-    // Find the request that matches the blood type
-    const request = await Request.findOne({ requestedBloodGroup: bloodType });
-
-    if (!request) {
-      return res.status(404).json({ message: "Matching request not found." });
+    // Validate required fields
+    if (!donatedBy || !bloodType || !donatedQuantity || !requestedQuantity) {
+      return res.status(400).json({
+        success: false,
+        message: "All fields are required (donor name, blood type, quantities)",
+      });
     }
 
-    // Update the request with the new donated quantity
-    request.donatedQuantity = (request.donatedQuantity || 0) + donatedQuantity;
+    // Convert and validate quantities
+    const donatedQty = Number(donatedQuantity);
+    const requestedQty = Number(requestedQuantity);
 
-    // Check if the request is fully met
-    if (request.donatedQuantity == request.requestedQuantity) {
-      await Request.deleteOne({ _id: request._id }); // Remove the request if fulfilled
-    } else if (request.donatedQuantity >= request.requestedQuantity) {
-      // return res
-      //   .status(400)
-      //   .json({ message: "Limit exceeds, please donate as per requirements" });
-      console.log("Limit exceeds, please donate as per requirements");
-    } else {
-      await request.save(); // Save updated request if not fully met
+    if (isNaN(donatedQty) || isNaN(requestedQty)) {
+      return res.status(400).json({
+        success: false,
+        message: "Invalid quantity format",
+      });
+    }
+
+    if (donatedQty <= 0) {
+      return res.status(400).json({
+        success: false,
+        message: "Donation quantity must be greater than 0",
+      });
+    }
+
+    // Create new donation
+    const newDonation = new Donation({
+      donorId,
+      donatedBy,
+      donorEmail,
+      donationDate: donationDate || new Date(),
+      bloodType,
+      donatedQuantity: donatedQty,
+      requestedQuantity: requestedQty,
+      requestApproval: "Pending",
+    });
+
+    await newDonation.save();
+
+    // Find matching open requests
+    const matchingRequests = await Request.find({
+      requestedBloodGroup: bloodType,
+      $expr: { $lt: ["$donatedQuantity", "$requestedQuantity"] },
+      status: { $ne: "Fulfilled" }, // Ensure we don't process already fulfilled requests
+    }).sort({ neededTime: 1 });
+
+    console.log(`Found ${matchingRequests.length} matching requests`);
+
+    let remainingQty = donatedQty;
+    const fulfilledRequestIds = [];
+
+    for (const request of matchingRequests) {
+      if (remainingQty <= 0) break;
+
+      const neededQty = request.requestedQuantity - request.donatedQuantity;
+      const allocateQty = Math.min(neededQty, remainingQty);
+
+      request.donatedQuantity += allocateQty;
+      remainingQty -= allocateQty;
+
+      if (request.donatedQuantity >= request.requestedQuantity) {
+        request.status = "Fulfilled";
+        fulfilledRequestIds.push(request._id);
+      }
+
+      await request.save();
+    }
+
+    // Delete all fulfilled requests
+    if (fulfilledRequestIds.length > 0) {
+      await Request.deleteMany({ _id: { $in: fulfilledRequestIds } });
+      console.log(`Deleted ${fulfilledRequestIds.length} fulfilled requests`);
     }
 
     res.status(201).json({
-      message: "Donation submitted successfully.",
+      success: true,
+      message: "Donation submitted successfully",
       donation: newDonation,
+      fulfilledRequestIds,
+      remainingQuantity: remainingQty > 0 ? remainingQty : 0,
     });
   } catch (error) {
-    res.status(500).json({ message: "Error submitting donation", error });
+    console.error("Donation submission error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal server error processing donation",
+      error: error.message,
+    });
   }
 };
 
-// Get all donations
 exports.getDonations = async (req, res) => {
   try {
-    const donations = await Donation.find();
-    res.status(200).json(donations);
+    const donations = await Donation.find().lean(); // Convert to plain JS objects
+
+    const formattedDonations = donations.map((donation) => ({
+      ...donation,
+      requestedQuantity: donation.requestedQuantity ?? 0, // Fallback to 0
+    }));
+
+    res.status(200).json({
+      success: true,
+      count: formattedDonations.length,
+      donations: formattedDonations,
+    });
   } catch (error) {
-    res.status(500).json({ message: "Error fetching donations", error });
+    res.status(500).json({
+      success: false,
+      message: "Error fetching donations",
+      error: error.message,
+    });
   }
 };
 
-// Get donations by donor name
 exports.getDonationsByDonor = async (req, res) => {
   try {
     const { donorName } = req.params;
     const donations = await Donation.find({ donatedBy: donorName });
-    res.status(200).json(donations);
+    res.status(200).json({
+      success: true,
+      count: donations.length,
+      donations,
+    });
   } catch (error) {
-    res
-      .status(500)
-      .json({ message: "Error fetching donor's donations", error });
+    res.status(500).json({
+      success: false,
+      message: "Error fetching donor's donations",
+      error: error.message,
+    });
   }
 };
