@@ -11,7 +11,6 @@ const AdminRecipients = () => {
   const [recipients, setRecipients] = useState([]);
 
   const columns = [
-    { field: "_id", headerName: "ID", width: 90 },
     { field: "recipientName", headerName: "Name", width: 150 },
     { field: "address", headerName: "Address", width: 150 },
     { field: "email", headerName: "Email", width: 130 },
