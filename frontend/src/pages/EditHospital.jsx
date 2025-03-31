@@ -48,7 +48,11 @@ const EditHospital = () => {
   };
 
   return (
-    <div className={`transition-all duration-300 ${isSidebarCollapsed ? "w-[95vw]" : "w-[75vw]"} min-w-[300px] mx-auto`}>
+    <div
+      className={`transition-all duration-300 ${
+        isSidebarCollapsed ? "w-[95vw]" : "w-[75vw]"
+      } min-w-[300px] mx-auto`}
+    >
       <AdminNavbar />
       <div className="flex items-center justify-between m-[30px] pt-10">
         <h1 className="text-[20px] font-semibold">Edit Hospital</h1>
@@ -90,6 +94,15 @@ const EditHospital = () => {
           placeholder={hospital.address}
           name="address"
           value={inputs.address || ""}
+          onChange={handleChange}
+          className="border-b-2 border-[#555] outline-none p-[5px] w-[300px]"
+        />
+        <label>Status</label>
+        <input
+          type="text"
+          placeholder={hospital.status}
+          name="status"
+          value={inputs.status || ""}
           onChange={handleChange}
           className="border-b-2 border-[#555] outline-none p-[5px] w-[300px]"
         />
