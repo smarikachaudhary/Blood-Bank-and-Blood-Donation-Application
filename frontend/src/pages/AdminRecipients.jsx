@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { DataGrid } from '@mui/x-data-grid';
+import { DataGrid } from "@mui/x-data-grid";
 import { Link } from "react-router-dom";
 import { FaTrash } from "react-icons/fa";
 import { useLocation } from "react-router-dom"; // To detect route changes
@@ -15,6 +15,7 @@ const AdminRecipients = () => {
     { field: "address", headerName: "Address", width: 150 },
     { field: "email", headerName: "Email", width: 130 },
     { field: "phone", headerName: "Contact", width: 150 },
+    { field: "status", headerName: "Status", width: 130 },
     {
       field: "edit",
       headerName: "Edit",
@@ -63,7 +64,7 @@ const AdminRecipients = () => {
   const handleDelete = async (_id) => {
     try {
       await API.delete(`/users/recipients/${_id}`);
-      setRecipients(recipients.filter(recipient => recipient._id !== _id));
+      setRecipients(recipients.filter((recipient) => recipient._id !== _id));
     } catch (error) {
       console.log(error);
     }
@@ -75,7 +76,7 @@ const AdminRecipients = () => {
     if (sidebar) {
       setIsSidebarCollapsed(sidebar.classList.contains("w-[80px]"));
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [useLocation()]);
 
   return (
@@ -89,12 +90,17 @@ const AdminRecipients = () => {
         <h1 className="text-[20px] font-semibold">Recipients</h1>
         <Link to="/admin/newrecipient">
           <button className="bg-[#800000] text-white p-[10px] rounded-md cursor-pointer font-semibold">
-            New Donor
+            New Recipient
           </button>
         </Link>
       </div>
       <div className="m-[30px]">
-        <DataGrid rows={recipients} getRowId={(row) => row._id} checkboxSelection columns={columns} />
+        <DataGrid
+          rows={recipients}
+          getRowId={(row) => row._id}
+          checkboxSelection
+          columns={columns}
+        />
       </div>
     </div>
   );
