@@ -11,7 +11,6 @@ export const userLogin = createAsyncThunk(
       // Store token
       if (data.success) {
         localStorage.setItem("token", data.token);
-        window.location.replace("/admin"); // Optional: handle navigation in the calling function
       }
       return data;
     } catch (error) {
@@ -29,7 +28,7 @@ export const userRegister = createAsyncThunk(
   "auth/register",
   async (
     {
-      adminName,
+      // adminName,
       donorName,
       recipientName,
       hospitalName,
@@ -43,7 +42,7 @@ export const userRegister = createAsyncThunk(
   ) => {
     try {
       const { data } = await API.post("/auth/register", {
-        adminName,
+        // adminName,
         donorName,
         recipientName,
         hospitalName,

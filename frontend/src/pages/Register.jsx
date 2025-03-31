@@ -16,18 +16,20 @@ const Register = () => {
   const [isSuccess, setIsSuccess] = useState(false);
 
   const handleRoleChange = (e) => {
-    setRole(e.target.value);
-  };
+  setRole(e.target.value); 
+  console.log("Selected Role:", e.target.value); // Debugging Line
+};
 
   const onSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
+  console.log("Current Role:", role); // Debugging Line
 
-    // Validate required fields
-    if (!email || !password || !role || !address || !phone) {
-      setMessage("Please provide all fields.");
-      setIsSuccess(false);
-      return;
-    }
+  // Validate required fields
+  if (!email || !password || !role || !address || !phone) {
+    setMessage("Please provide all fields.");
+    setIsSuccess(false);
+    return;
+  }
 
     // Conditionally check if role-specific fields are filled
     // if (role === "admin" && !adminName) {

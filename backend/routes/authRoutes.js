@@ -4,6 +4,7 @@ const {
   loginController,
   currentUserController,
   verifyEmail,
+  getAllUsersController,
 } = require("../controllers/authController");
 const authMiddleware = require("../middlewares/authMiddleware");
 
@@ -15,6 +16,9 @@ router.post("/register", registerController);
 
 //Login POST
 router.post("/login", loginController);
+
+//All Users
+router.get("/all-users", getAllUsersController);
 
 //verify email
 router.post("/verify-email", verifyEmail);
