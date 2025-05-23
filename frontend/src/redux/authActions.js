@@ -4,14 +4,25 @@ import API from "./API";
 //login
 export const userLogin = createAsyncThunk(
   "auth/login",
-  async ({ role, email, password }, { rejectWithValue }) => {
+  async ({ email, password, role, isGoogleLogin }, { rejectWithValue }) => {
     try {
-      const { data } = await API.post("/auth/login", { role, email, password });
+      // Prepare request data - only include role if it's provided
+      const requestData = {
+        email,
+        password,
+        isGoogleLogin,
+      };
+      
+      // Only add role if it's explicitly provided (not null or undefined)
+      if (role) {
+        requestData.role = role;
+      }
+      
+      const { data } = await API.post("/auth/login", requestData);
 
       // Store token
       if (data.success) {
         localStorage.setItem("token", data.token);
-        window.location.replace("/admin"); // Optional: handle navigation in the calling function
       }
       return data;
     } catch (error) {
@@ -29,29 +40,27 @@ export const userRegister = createAsyncThunk(
   "auth/register",
   async (
     {
-      adminName,
       donorName,
       recipientName,
-      hospitalName,
       phone,
       address,
       email,
       password,
       role,
+      isGoogleLogin,
     },
     { rejectWithValue }
   ) => {
     try {
       const { data } = await API.post("/auth/register", {
-        adminName,
         donorName,
         recipientName,
-        hospitalName,
         phone,
         address,
         email,
         password,
         role,
+        isGoogleLogin,
       });
       if (data?.success) {
         return data;
