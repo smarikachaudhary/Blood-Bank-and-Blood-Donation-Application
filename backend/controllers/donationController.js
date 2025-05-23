@@ -84,10 +84,25 @@ exports.submitDonation = async (req, res) => {
       await request.save();
     }
 
+
+
+    // Check if the request is fully met
+    if (request.donatedQuantity == request.requestedQuantity) {
+      await Request.deleteOne({ _id: request._id }); // Remove the request if fulfilled
+    } else if (request.donatedQuantity >= request.requestedQuantity) {
+      // return res
+      //   .status(400)
+      //   .json({ message: "Limit exceeds, please donate as per requirements" });
+      console.log("Limit exceeds, please donate as per requirements");
+    } else {
+      await request.save(); // Save updated request if not fully met
+
+
     // Delete all fulfilled requests
     if (fulfilledRequestIds.length > 0) {
       await Request.deleteMany({ _id: { $in: fulfilledRequestIds } });
       console.log(`Deleted ${fulfilledRequestIds.length} fulfilled requests`);
+
     }
 
     res.status(201).json({

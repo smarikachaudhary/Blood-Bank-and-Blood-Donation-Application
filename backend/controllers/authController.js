@@ -4,10 +4,14 @@ const User = require("../models/User");
 const dotenv = require("dotenv");
 const { sendVerificationCode, welcomeEmail } = require("../middlewares/email");
 
+const { createNotification } = require("./notificationController");
+
+
 dotenv.config();
 
 // REGISTER USER
 const registerController = async (req, res) => {
+  console.log("Register request body:", req.body);
   try {
     const existingUser = await User.findOne({ email: req.body.email });
 
@@ -17,6 +21,22 @@ const registerController = async (req, res) => {
         message: "User already exists with this email!",
       });
     }
+
+
+    // For Google login, skip password validation
+    if (!req.body.isGoogleLogin) {
+      // Validate password length and complexity
+      const passwordValidationError =
+        /^(?=.*[A-Z])(?=.*\d)(?=.*[a-zA-Z]).{6,}$/;
+      if (!passwordValidationError.test(req.body.password)) {
+        return res.status(400).send({
+          success: false,
+          message:
+            "Password must contain at least one uppercase letter, one number, and a mix of characters.",
+        });
+      }
+    }
+
 
     if (!req.body.role) {
       return res.status(400).send({
@@ -29,7 +49,6 @@ const registerController = async (req, res) => {
       admin: "Admin name is required for the admin role.",
       donor: "Donor name is required for the donor role.",
       recipient: "Recipient name is required for the recipient role.",
-      hospital: "Hospital name is required for the hospital role.",
     };
 
     if (!req.body[`${req.body.role}Name`]) {
@@ -39,7 +58,9 @@ const registerController = async (req, res) => {
       });
     }
 
+
     // Validate email format
+
     const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
     if (!emailRegex.test(req.body.email)) {
       return res.status(400).send({
@@ -47,6 +68,14 @@ const registerController = async (req, res) => {
         message: "Please provide a valid email address.",
       });
     }
+
+    // Only require password for non-Google signups
+    const isGoogle =
+      req.body.isGoogleLogin === true || req.body.isGoogleLogin === "true";
+    if (isGoogle && (!req.body.password || req.body.password.trim() === "")) {
+      req.body.password = Math.random().toString(36).slice(-8) + "A1";
+    }
+
 
     // Validate password length
     const passwordValidationError = /^(?=.*[A-Z])(?=.*\d)(?=.*[a-zA-Z]).{6,}$/;
@@ -59,12 +88,14 @@ const registerController = async (req, res) => {
     }
 
     // Validate address
+
     if (!req.body.address) {
       return res.status(400).send({
         success: false,
         message: "Address is required.",
       });
     }
+
 
     const phoneRegex = /^98\d{8}$/;
     if (!phoneRegex.test(req.body.phone)) {
@@ -80,16 +111,37 @@ const registerController = async (req, res) => {
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
     req.body.password = hashedPassword;
 
+
     // Generate email verification code
+
+
+    const phoneRegex = /^98\d{8}$/;
+    if (!phoneRegex.test(req.body.phone)) {
+      return res.status(400).send({
+        success: false,
+        message:
+          "Please provide a valid 10-digit phone number starting with 98.",
+      });
+    }
+
+    // Remove any manual hashing here!
+
+    // Generate verification code
+
     const verificationCode = Math.floor(
       100000 + Math.random() * 900000
     ).toString();
 
+
     // Save user in the database
     const user = new User({
+
+    // Create user object
+    const userData = {
+
       ...req.body,
-      password: hashedPassword,
       verificationCode,
+
     });
 
     await user.save();
@@ -97,10 +149,50 @@ const registerController = async (req, res) => {
     // Send verification code to user
     sendVerificationCode(user.email, verificationCode);
 
+      // For Google login, set status to true as email is already verified
+      status: req.body.isGoogleLogin ? true : false,
+    };
+
+    // Create new user instance
+    const user = new User(userData);
+
+    // Save user - password will be hashed by pre-save middleware
+    await user.save();
+
+    // Create notification for new user
+    await createNotification(
+      "new_user",
+      `New ${user.role} registered: ${user[`${user.role}Name`]}`,
+      {
+        userId: user._id,
+        name: user[`${user.role}Name`],
+        role: user.role,
+      }
+    );
+
+    // Only send verification code for non-Google login
+    if (!req.body.isGoogleLogin) {
+      sendVerificationCode(user.email, verificationCode);
+    }
+
+    // Generate token for immediate login (especially useful for Google login)
+    const token = jwt.sign(
+      { userId: user._id, role: user.role, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+
     return res.status(201).send({
       success: true,
       message: "User registered successfully!",
-      user,
+      user: {
+        _id: user._id,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+      },
+      token,
     });
   } catch (error) {
     console.log(error);
@@ -151,53 +243,77 @@ const verifyEmail = async (req, res) => {
 // LOGIN USER
 const loginController = async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const { email, password, role, isGoogleLogin } = req.body;
+
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).send({
         success: false,
-        message: "Invalid Email",
+        message: "User not found. Please register first.",
       });
     }
 
-    // Compare password
-    const isPasswordCorrect = await bcrypt.compare(
-      req.body.password,
-      user.password
-    );
-    if (!isPasswordCorrect) {
-      return res.status(401).send({
-        success: false,
-        message: "Incorrect password!",
-      });
-    }
-
-    // Validate role
-    if (req.body.role !== user.role) {
+    // Only check role if it was explicitly provided in the request
+    if (role && role !== user.role) {
       return res.status(403).send({
         success: false,
         message: `Incorrect role. You are registered as a ${user.role}.`,
       });
     }
 
+
     // Generate JWT
+
+    if (!isGoogleLogin) {
+      if (!password || password.trim() === "") {
+        return res.status(400).send({
+          success: false,
+          message: "Password is required for login.",
+        });
+      }
+
+      const isPasswordCorrect = await bcrypt.compare(
+        password.toString(),
+        user.password
+      );
+
+      if (!isPasswordCorrect) {
+        return res.status(401).send({
+          success: false,
+          message: "Incorrect password!",
+        });
+      }
+    }
+
+
     const token = jwt.sign(
       { userId: user._id, role: user.role, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
+
+    user.lastLogin = Date.now();
+    await user.save();
+
+
     return res.status(200).send({
       success: true,
       message: "Login Successful!",
       token,
-      user,
+      user: {
+        _id: user._id,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+      },
     });
   } catch (error) {
-    console.error(error);
+    console.error("Login error:", error);
     res.status(500).send({
       success: false,
       message: "Error in login API",
-      error,
+      error: error.message,
     });
   }
 };
@@ -205,7 +321,11 @@ const loginController = async (req, res) => {
 // GET CURRENT USER
 const currentUserController = async (req, res) => {
   try {
+
     const user = await User.findById(req.user.userId); // Getting user from decoded JWT
+
+    const user = await User.findById(req.user.userId);
+
     return res.status(200).send({
       success: true,
       message: "User Fetched Successfully",

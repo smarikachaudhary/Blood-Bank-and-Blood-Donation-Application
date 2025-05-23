@@ -205,7 +205,11 @@ const Donors = () => {
                 className="mt-4 w-full bg-[#800000] text-white px-4 py-2 rounded-lg hover:bg-red-700 transition"
                 onClick={() => handleDonateClick(request)}
               >
+
                 Donate Now
+
+                Request Donation
+
               </button>
             </div>
           ))}
@@ -225,6 +229,16 @@ const Donors = () => {
             <h2 className="text-xl font-bold text-gray-800 mb-4">
               Donation Form
             </h2>
+
+
+
+            <button
+              className="mt-4 bg-[#800000] text-white px-4 py-2 rounded-lg hover:bg-red-600"
+              onClick={handleSubmit}
+            >
+              Submit Donation Request
+            </button>
+
 
             <div className="space-y-4">
               <div>
@@ -355,6 +369,7 @@ const Donors = () => {
                 )}
               </button>
             </div>
+
           </div>
         </div>
       )}
