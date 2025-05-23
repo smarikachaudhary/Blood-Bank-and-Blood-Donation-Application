@@ -16,8 +16,14 @@ const RecipientNavbar = () => {
   const [showForm, setShowForm] = useState(false);
   const [showUploadModal, setShowUploadModal] = useState(false);
   const [documentUploaded, setDocumentUploaded] = useState(false);
+
+  const userData = getTokenAndEmail();
+  const recipientId = userData?.userId;
+
   const [formData, setFormData] = useState({
     requestedFor: "",
+    recipientEmail: userData?.email || "",
+    recipientId: userData?.userId || "",
     requestedBy: "",
     requestedDateTime: "",
     requestedBloodGroup: "",
@@ -26,14 +32,10 @@ const RecipientNavbar = () => {
     requestType: false,
     alreadyCollected: false,
   });
-  const inputRef = useRef(null);
 
-  // New state for document preview modal
+  const inputRef = useRef(null);
   const [isDocumentModalOpen, setIsDocumentModalOpen] = useState(false);
   const [selectedDocument, setSelectedDocument] = useState(null);
-
-  const userData = getTokenAndEmail();
-  const recipientId = userData?.userId;
 
   useEffect(() => {
     const fetchNotifications = async () => {
@@ -48,7 +50,6 @@ const RecipientNavbar = () => {
     fetchNotifications();
   }, [recipientId]);
 
-  // Fetch the citizenship document URL
   useEffect(() => {
     const fetchDocument = async () => {
       if (!recipientId) return;
@@ -65,9 +66,9 @@ const RecipientNavbar = () => {
             "/"
           )}`;
           setSelectedDocument(fullDocumentUrl);
-          setDocumentUploaded(true); // Document exists
+          setDocumentUploaded(true);
         } else {
-          setDocumentUploaded(false); // No document uploaded
+          setDocumentUploaded(false);
         }
       } catch (error) {
         console.error("Error fetching document:", error);
@@ -78,7 +79,6 @@ const RecipientNavbar = () => {
     fetchDocument();
   }, [recipientId]);
 
-  // Function to handle document viewing (fetch from the database)
   const handleViewDocument = async (userId) => {
     try {
       const response = await API.get(
@@ -198,20 +198,44 @@ const RecipientNavbar = () => {
             {showForm && (
               <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-20">
                 <div className="bg-white p-6 rounded-md w-[400px] shadow-lg relative">
-                  <h1 className="text-lg text-black font-semibold pb-3">
-                    Make Blood Request
-                  </h1>
+                  <div className="flex justify-between items-center mb-4">
+                    <h1 className="text-lg text-black font-semibold">
+                      Make Blood Request
+                    </h1>
+                    <FaTimes
+                      className="text-gray-500 cursor-pointer text-lg"
+                      onClick={toggleForm}
+                    />
+                  </div>
                   <form onSubmit={handleSubmit} className="space-y-2">
                     <div className="pb-3">
                       <label
-                        htmlFor="requestedFor"
+                        htmlFor="requestedBy"
                         className="block text-sm text-black font-medium mb-1"
                       >
                         Requested By:
                       </label>
                       <input
+                        id="requestedBy"
                         type="text"
                         name="requestedBy"
+                        onChange={handleChange}
+                        className="w-full border rounded p-1"
+                        required
+                      />
+                    </div>
+                    <div className="pb-3">
+                      <label
+                        htmlFor="recipientEmail"
+                        className="block text-sm text-black font-medium mb-1"
+                      >
+                        Recipient Email:
+                      </label>
+                      <input
+                        id="recipientEmail"
+                        type="email"
+                        name="recipientEmail"
+                        value={formData.recipientEmail}
                         onChange={handleChange}
                         className="w-full border rounded p-1"
                         required
@@ -225,6 +249,7 @@ const RecipientNavbar = () => {
                         Requested For:
                       </label>
                       <input
+                        id="requestedFor"
                         type="text"
                         name="requestedFor"
                         onChange={handleChange}
@@ -232,15 +257,15 @@ const RecipientNavbar = () => {
                         required
                       />
                     </div>
-
                     <div className="pb-3">
                       <label
-                        htmlFor="requestedFor"
+                        htmlFor="requestedDateTime"
                         className="block text-sm text-black font-medium mb-1"
                       >
                         Date & Time:
                       </label>
                       <input
+                        id="requestedDateTime"
                         type="datetime-local"
                         name="requestedDateTime"
                         onChange={handleChange}
@@ -250,12 +275,13 @@ const RecipientNavbar = () => {
                     </div>
                     <div className="pb-3">
                       <label
-                        htmlFor="requestedFor"
+                        htmlFor="requestedBloodGroup"
                         className="block text-sm text-black font-medium mb-1"
                       >
                         Blood Group:
                       </label>
                       <select
+                        id="requestedBloodGroup"
                         name="requestedBloodGroup"
                         onChange={handleChange}
                         className="w-full border rounded p-1 text-black"
@@ -274,12 +300,13 @@ const RecipientNavbar = () => {
                     </div>
                     <div className="pb-3">
                       <label
-                        htmlFor="requestedFor"
+                        htmlFor="requestedQuantity"
                         className="block text-sm text-black font-medium mb-1"
                       >
                         Quantity:
                       </label>
                       <input
+                        id="requestedQuantity"
                         type="number"
                         name="requestedQuantity"
                         onChange={handleChange}
@@ -290,12 +317,13 @@ const RecipientNavbar = () => {
                     </div>
                     <div className="pb-3">
                       <label
-                        htmlFor="requestedFor"
+                        htmlFor="neededTime"
                         className="block text-sm text-black font-medium mb-1"
                       >
                         Needed Till:
                       </label>
                       <input
+                        id="neededTime"
                         type="datetime-local"
                         name="neededTime"
                         onChange={handleChange}
@@ -304,8 +332,12 @@ const RecipientNavbar = () => {
                       />
                     </div>
                     <div className="pb-3">
-                      <label className="flex items-center text-black">
+                      <label
+                        htmlFor="requestType"
+                        className="flex items-center text-black"
+                      >
                         <input
+                          id="requestType"
                           type="checkbox"
                           name="requestType"
                           checked={formData.requestType}
@@ -315,30 +347,12 @@ const RecipientNavbar = () => {
                         Urgent Request
                       </label>
                     </div>
-                    {/* <label className="flex items-center text-black">
-                    <input
-                      type="checkbox"
-                      name="alreadyCollected"
-                      onChange={handleChange}
-                      className="mr-2 "
-                    />{" "}
-                    Already Collected
-                  </label> */}
-                    <div className="flex justify-end space-x-2">
-                      <button
-                        type="button"
-                        onClick={toggleForm}
-                        className="px-3 py-1 bg-gray-400 text-white rounded"
-                      >
-                        Cancel
-                      </button>
-                      <button
-                        type="submit"
-                        className="px-3 py-1 bg-[#800000] text-white rounded"
-                      >
-                        Submit
-                      </button>
-                    </div>
+                    <button
+                      type="submit"
+                      className="px-3 py-1 bg-[#800000] text-white rounded mt-4 w-full"
+                    >
+                      Submit
+                    </button>
                   </form>
                 </div>
               </div>
@@ -355,7 +369,6 @@ const RecipientNavbar = () => {
             )}
           </div>
 
-          {/* Profile Icon & Dropdown */}
           <div className="relative">
             <FaUserCircle
               className="text-2xl cursor-pointer"
@@ -363,11 +376,10 @@ const RecipientNavbar = () => {
             />
             {activeDropdown === "profile" && (
               <div className="absolute right-0 mt-2 w-[180px] bg-white text-black shadow-lg rounded-md">
-                {/* View Document Link */}
                 {documentUploaded && (
                   <div
                     className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
-                    onClick={() => handleViewDocument(recipientId)} // Open document modal
+                    onClick={() => handleViewDocument(recipientId)}
                   >
                     View Document
                   </div>
@@ -389,16 +401,14 @@ const RecipientNavbar = () => {
           </div>
         </div>
       </div>
-      {/* Upload Citizenship Modal */}
+
       {showUploadModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
           <div className="bg-white p-6 rounded-lg shadow-lg w-[350px] relative">
-            {/* Cross Button */}
             <FaTimes
               className="absolute top-2 right-2 text-gray-600 cursor-pointer text-lg"
               onClick={() => setShowUploadModal(false)}
             />
-
             <h2 className="text-lg font-semibold mb-4">Upload Citizenship</h2>
             <input
               type="file"
@@ -417,19 +427,16 @@ const RecipientNavbar = () => {
         </div>
       )}
 
-      {/* Modal for Document Preview */}
       {isDocumentModalOpen && selectedDocument && (
         <div className="fixed inset-0 bg-gray-500 bg-opacity-50 flex justify-center items-center z-50">
           <div className="bg-white p-6 rounded-lg relative w-[80%] sm:w-[600px] md:w-[800px]">
             <button
               className="absolute top-2 right-2 text-xl font-bold"
-              onClick={() => setIsDocumentModalOpen(false)} // Close document modal
+              onClick={() => setIsDocumentModalOpen(false)}
             >
               &times;
             </button>
             <h2 className="font-semibold mb-2 text-lg">Document</h2>
-
-            {/* Displaying the document (assuming it's a PDF or an image) */}
             {selectedDocument.endsWith(".pdf") ? (
               <iframe
                 src={selectedDocument}

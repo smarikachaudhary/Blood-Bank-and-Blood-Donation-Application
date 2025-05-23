@@ -105,10 +105,6 @@ function App() {
           element: <EditDonor />,
         },
         {
-          path: "/admin/donor/:id",
-          element: <AdminDonors />,
-        },
-        {
           path: "/admin/recipients",
           element: <AdminRecipients />,
         },
