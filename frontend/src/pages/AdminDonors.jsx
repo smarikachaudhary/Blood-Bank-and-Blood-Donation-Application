@@ -54,7 +54,6 @@ const AdminUsers = () => {
   }, [useLocation()]);
 
   const columns = [
-    { field: "_id", headerName: "ID", width: 90 },
     { field: "name", headerName: "Name", width: 150 },
     { field: "address", headerName: "Address", width: 150 },
     { field: "phone", headerName: "Contact", width: 150 },
@@ -67,7 +66,9 @@ const AdminUsers = () => {
       width: 150,
       renderCell: (params) => (
         <Link to={`/admin/donor/${params.row._id}`}>
-          <button className="bg-gray-400 text-white cursor-pointer w-[70px]">Edit</button>
+          <button className="bg-gray-400 text-white cursor-pointer w-[70px]">
+            Edit
+          </button>
         </Link>
       ),
     },
@@ -76,13 +77,20 @@ const AdminUsers = () => {
       headerName: "Delete",
       width: 150,
       renderCell: (params) => (
-        <FaTrash className="text-red-500 cursor-pointer m-2" onClick={() => handleDelete(params.row._id)} />
+        <FaTrash
+          className="text-red-500 cursor-pointer m-2"
+          onClick={() => handleDelete(params.row._id)}
+        />
       ),
     },
   ];
 
   return (
-    <div className={`transition-all duration-300 ${isSidebarCollapsed ? "w-[95vw]" : "w-[75vw]"} min-w-[300px] mx-auto`}>
+    <div
+      className={`transition-all duration-300 ${
+        isSidebarCollapsed ? "w-[95vw]" : "w-[75vw]"
+      } min-w-[300px] mx-auto`}
+    >
       <AdminNavbar />
       <div className="flex items-center justify-between m-[30px] pt-10">
         <h1 className="text-[20px] font-semibold">Donors</h1>
@@ -93,7 +101,12 @@ const AdminUsers = () => {
         </Link>
       </div>
       <div className="m-[30px]">
-        <DataGrid rows={donors} getRowId={(row) => row._id} checkboxSelection columns={columns} />
+        <DataGrid
+          rows={donors}
+          getRowId={(row) => row._id}
+          checkboxSelection
+          columns={columns}
+        />
       </div>
     </div>
   );

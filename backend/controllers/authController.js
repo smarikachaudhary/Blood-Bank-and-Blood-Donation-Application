@@ -54,6 +54,9 @@ const registerController = async (req, res) => {
       });
     }
 
+
+    // Validate email format
+
     const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
     if (!emailRegex.test(req.body.email)) {
       return res.status(400).send({
@@ -69,12 +72,41 @@ const registerController = async (req, res) => {
       req.body.password = Math.random().toString(36).slice(-8) + "A1";
     }
 
+
+    // Validate password length
+    const passwordValidationError = /^(?=.*[A-Z])(?=.*\d)(?=.*[a-zA-Z]).{6,}$/;
+    if (!passwordValidationError.test(req.body.password)) {
+      return res.status(400).send({
+        success: false,
+        message:
+          "Password must contain at least one uppercase letter, one number, and a mix of characters.",
+      });
+    }
+
+    // Validate address
+
     if (!req.body.address) {
       return res.status(400).send({
         success: false,
         message: "Address is required.",
       });
     }
+
+
+    const phoneRegex = /^98\d{8}$/;
+    if (!phoneRegex.test(req.body.phone)) {
+      return res.status(400).send({
+        success: false,
+        message:
+          "Please provide a valid 10-digit phone number starting with 98.",
+      });
+    }
+
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(req.body.password, salt);
+    req.body.password = hashedPassword;
+
 
     const phoneRegex = /^98\d{8}$/;
     if (!phoneRegex.test(req.body.phone)) {

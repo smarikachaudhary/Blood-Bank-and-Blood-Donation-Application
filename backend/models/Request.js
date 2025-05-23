@@ -6,6 +6,7 @@ const BloodRequestSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    recipientEmail: String,
     requestedFor: {
       type: String,
       required: true,
