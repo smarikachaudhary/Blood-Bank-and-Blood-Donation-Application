@@ -5,9 +5,10 @@ const {
   createInventoryController,
   getInventoryController,
   deleteInventoryController,
+  getBloodAnalyticsController,
 } = require("../controllers/inventoryController");
 const authMiddleware = require("../middlewares/authMiddleware");
-const inventoryModel = require("../models/inventoryModel");
+const inventoryModel = require("../models/InventoryModel");
 
 const router = express.Router();
 
@@ -62,5 +63,7 @@ router.put("/record/:id", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+router.get("/analytics", getBloodAnalyticsController);
 
 module.exports = router;
