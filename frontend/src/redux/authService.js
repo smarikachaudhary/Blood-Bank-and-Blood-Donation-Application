@@ -3,6 +3,7 @@ import store from "../redux/store";
 import { jwtDecode } from "jwt-decode";
 
 
+
 export const handleLogin = async (
   email,
   password,
@@ -66,7 +67,7 @@ export const handleLogin = async (
         
         return { success: true, message: "Login Successful!", user: userData.user || userData };
       }
-=======
+
 export const handleLogin = async (email, password, role) => {
   try {
     // Check if all fields are filled before sending the request
@@ -123,6 +124,10 @@ export const handleRegister = async (
 
   //adminName,
 
+
+  //adminName,
+
+
   donorName,
   recipientName,
   phone,
@@ -149,6 +154,10 @@ export const handleRegister = async (
       userRegister({
 
         // adminName,
+
+
+        // adminName,
+
 
         donorName,
         recipientName,

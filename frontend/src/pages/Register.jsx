@@ -21,6 +21,22 @@ const Register = () => {
   const [googleUserData, setGoogleUserData] = useState(null);
 
   const handleRoleChange = (e) => {
+
+  setRole(e.target.value); 
+  console.log("Selected Role:", e.target.value); // Debugging Line
+};
+
+  const onSubmit = async (e) => {
+  e.preventDefault();
+  console.log("Current Role:", role); // Debugging Line
+
+  // Validate required fields
+  if (!email || !password || !role || !address || !phone) {
+    setMessage("Please provide all fields.");
+    setIsSuccess(false);
+    return;
+  }
+
     setRole(e.target.value);
     console.log("Selected Role:", e.target.value);
   };
@@ -41,6 +57,7 @@ const Register = () => {
       setIsSuccess(false);
       return;
     }
+
 
     // Conditionally check if role-specific fields are filled
     if (role === "donor" && !donorName) {

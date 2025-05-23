@@ -1,3 +1,11 @@
+
+import AdminNavbar from "../components/AdminNavbar";
+
+const Donations = () => {
+  return (
+    <div className="w-[70vw]">
+      <AdminNavbar />
+
 import { useEffect, useState } from "react";
 import AdminNavbar from "../components/AdminNavbar";
 import Api from "../redux/API";
@@ -183,6 +191,7 @@ const Donations = () => {
           </div>
         </div>
       )}
+
     </div>
   );
 };

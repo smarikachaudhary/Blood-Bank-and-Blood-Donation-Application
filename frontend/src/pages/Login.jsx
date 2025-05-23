@@ -10,6 +10,7 @@ const Login = () => {
   const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
+
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       const decoded = jwtDecode(credentialResponse.credential);
@@ -23,6 +24,7 @@ const Login = () => {
         true, // isGoogleLogin flag
         decoded // Pass the full decoded token
       );
+
 
       if (result?.success) {
         setMessage("Login Successful!");
@@ -72,6 +74,9 @@ const Login = () => {
   };
 
   const onSubmit = async (e) => {
+
+  e.preventDefault();
+
     e.preventDefault();
 
     if (!email || !password) {
@@ -87,7 +92,34 @@ const Login = () => {
         passwordLength: trimmedPassword.length,
       });
 
+
       const result = await handleLogin(email, trimmedPassword, null, false);
+
+
+  const result = await handleLogin(email, password, role); // Call login service
+  if (result?.success) {
+    setMessage("Login Successful!");
+    // Redirect user based on role
+    switch (role) {
+      case "admin":
+        navigate("/admin");
+        break;
+      case "donor":
+        navigate("/donors");
+        break;
+      case "recipient":
+        navigate("/recipients");
+        break;
+      case "hospital":
+        navigate("/hospital");
+        break;
+      default:
+        setMessage("Invalid role.");
+    }
+  } else {
+    setMessage(result?.message || "Login failed. Please try again.");
+  }
+};
 
       if (result?.success) {
         setMessage("Login Successful!");
@@ -124,10 +156,30 @@ const Login = () => {
     }
   };
 
+
   return (
     <div className="flex items-center justify-center min-h-screen bg-gray-100">
       <div className="flex items-center bg-white shadow-lg rounded-lg overflow-hidden">
         <div className="h-[500px] w-[500px] transition-transform duration-700 ease-in-out transform hover:scale-105">
+
+          <img src="/banner1.jpg" alt="register" className="object-cover h-full w-full" />
+        </div>
+        <div className="p-10 w-[500px]">
+          <h2 className="text-2xl font-bold text-gray-600 mb-5">Login</h2>
+          <div className="flex justify-between mb-5">
+            {["admin", "donor", "recipient", "hospital"].map((r) => (
+              <label key={r} className="flex items-center">
+                <input
+                  type="radio"
+                  value={r}
+                  checked={role === r}
+                  onChange={handleRoleChange}
+                  className="mr-2"
+                />
+                {r.charAt(0).toUpperCase() + r.slice(1)}
+              </label>
+            ))}
+
           <img
             src="/banner1.jpg"
             alt="register"
@@ -137,6 +189,7 @@ const Login = () => {
         <div className="p-10 w-[500px]">
           <div className="flex items-center justify-center mb-4">
             <img src="/Logo.png" alt="DonateHope Logo" className="h-12 w-auto" />
+
           </div>
           <h2 className="text-2xl font-semibold text-[#800000] mb-5">Login</h2>
           <form className="space-y-5" onSubmit={onSubmit}>

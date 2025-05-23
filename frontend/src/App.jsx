@@ -20,8 +20,10 @@ import AdminDonors from "./pages/AdminDonors";
 import NewDonor from "./pages/NewDonor";
 import AdminRecipients from "./pages/AdminRecipients";
 
+
 import Inventory from "./pages/Inventory";
 import BloodRequests from "./pages/BloodRequests";
+
 
 import AdminHospital from "./pages/AdminHospital";
 import Inventory from "./pages/Inventory";
@@ -33,6 +35,11 @@ import AdminLogout from "./pages/AdminLogout";
 import Menu from "./components/Menu";
 import DonorMenu from "./components/DonorMenu";
 import RecipientMenu from "./components/RecipientMenu";
+
+import HospitalMenu from "./components/HospitalMenu";
+import VerifyEmail from "./pages/verifyEmail";
+import NewRecipient from "./pages/NewRecipient";
+
 
 import VerifyEmail from "./pages/verifyEmail";
 import NewRecipient from "./pages/NewRecipient";
@@ -48,6 +55,7 @@ import DonorViewHistory from "./pages/DonorViewHistory";
 import HospitalMenu from "./components/HospitalMenu";
 import VerifyEmail from "./pages/verifyEmail";
 import NewRecipient from "./pages/NewRecipient";
+
 import NewHospital from "./pages/NewHospital";
 import EditDonor from "./pages/EditDonor";
 import EditRecipient from "./pages/EditRecipient";
@@ -64,6 +72,7 @@ import DonorSettings from "./pages/DonorSettings";
 import RecipientMakeRequest from "./pages/RecipientMakeRequest";
 import RecipientTrackBloodRequest from "./pages/RecipientTrackBloodRequest";
 import RecipientSettings from "./pages/RecipientSettings";
+
 
 import Donations from "./pages/Donations";
 import AdminMessages from "./pages/AdminMessages";
@@ -178,6 +187,10 @@ function App() {
     );
   };
 
+
+    );
+  };
+
   // PropTypes for Layout
   Layout.propTypes = {
     allowedRoles: PropTypes.arrayOf(PropTypes.string).isRequired,
@@ -205,6 +218,7 @@ function App() {
         {
           path: "/admin/donors",
           element: <AdminDonors />,
+
         },
         {
           path: "/admin/newdonor",
@@ -272,6 +286,74 @@ function App() {
         },
       ],
 
+        },
+        {
+          path: "/admin/newdonor",
+          element: <NewDonor />,
+        },
+        {
+          path: "/admin/donor/:id",
+          element: <EditDonor />,
+        },
+        {
+          path: "/admin/recipients",
+          element: <AdminRecipients />,
+        },
+        {
+          path: "/admin/newrecipient",
+          element: <NewRecipient />,
+        },
+        {
+          path: "/admin/recipient/:id",
+          element: <EditRecipient />,
+        },
+        {
+          path: "/admin/hospital",
+          element: <AdminHospital />,
+        },
+        {
+          path: "/admin/newhospital",
+          element: <NewHospital />,
+        },
+        {
+          path: "/admin/hospital/:id",
+          element: <EditHospital />,
+        },
+        {
+          path: "/admin/inventory",
+          element: <Inventory />,
+        },
+        {
+          path: "/admin/addblood",
+          element: <AddBlood />,
+        },
+        {
+          path: "/admin/inventory/:id",
+          element: <EditInventroy />,
+        },
+        {
+          path: "/admin/donations",
+          element: <Donations />,
+        },
+        {
+          path: "/admin/bloodrequests",
+          element: <BloodRequests />,
+        },
+        {
+          path: "/admin/eligibility",
+          element: <Eligibility />,
+        },
+        {
+          path: "/admin/settings",
+          element: <AdminSettings />,
+        },
+        {
+          path: "/admin/logout",
+          element: <AdminLogout />,
+        },
+      ],
+
+
     },
     {
       path: "/login",
@@ -285,6 +367,7 @@ function App() {
     {
       path: "/verify-email",
       element: <VerifyEmail />,
+
 
     },
     {
@@ -474,6 +557,7 @@ function App() {
     recipientRoutes,
     // Fallback for 404
     {
+
 
       path: "*",
       element: <Navigate to="/" replace />,

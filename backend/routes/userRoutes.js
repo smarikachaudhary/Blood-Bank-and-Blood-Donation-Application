@@ -2,10 +2,23 @@ const express = require("express");
 const mongoose = require("mongoose"); // Ensure ObjectId validation
 const {
   validateDonor,
+  validateHospital,
+
   validateRecipient,
   createDonor,
   getDonors,
   createRecipient,
+
+  createHospital,
+  updateDonor,
+  updateRecipient,
+  updateHospital,
+} = require("../controllers/userController");
+const { verifyToken } = require("../middlewares/verifyToken");
+const Donor = require("../models/Donor");
+const Recipient = require("../models/Recipient");
+const Hospital = require("../models/Hospital");
+
   updateDonor,
   updateRecipient,
   getAllUsers,
@@ -16,12 +29,18 @@ const User = require("../models/User");
 const Donor = require("../models/Donor");
 const Recipient = require("../models/Recipient");
 
+
 const router = express.Router();
 
 // Validation routes
 router.post("/validate-donor/:userId", validateDonor);
+
+router.post("/validate-hospital/:userId", validateHospital);
+router.post("/validate-recipient/:userId", validateRecipient);
+
 router.post("/validate-recipient/:userId", validateRecipient);
 router.post("/rebut-user/:userId", rebutUser);
+
 
 // Fetch all donors
 router.get("/donors", async (req, res) => {
@@ -84,6 +103,39 @@ router.get("/recipients/:id", async (req, res) => {
   }
 });
 
+
+// Fetch all hospitals
+router.get("/hospitals", async (req, res) => {
+  try {
+    const hospitals = await Hospital.find();
+    res.status(200).json(hospitals);
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error fetching hospitals", error: error.message });
+  }
+});
+
+//Fetch single hospital
+router.get("/hospitals/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid hospital ID" });
+    }
+
+    const hospital = await Hospital.findById(id);
+    if (!hospital)
+      return res.status(404).json({ message: "Hospital not found" });
+
+    res.status(200).json(hospital);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
+
 //deleting donor
 router.delete("/donors/:id", async (req, res) => {
   try {
@@ -121,6 +173,26 @@ router.delete("/recipients/:id", async (req, res) => {
   }
 });
 
+
+//deleting hospital
+router.delete("/hospitals/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid hospital ID" });
+    }
+
+    const hospital = await Hospital.findByIdAndDelete(id);
+    if (!hospital)
+      return res.status(404).json({ message: "Hospital not found" });
+
+    res.json({ message: "Hospital deleted successfully" });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+
 // ADD DONOR
 router.post("/donors", verifyToken, createDonor);
 
@@ -132,6 +204,13 @@ router.post("/recipients", verifyToken, createRecipient);
 
 // UPDATE Recipient
 router.put("/recipients/:id", updateRecipient);
+
+
+// ADD Hospital
+router.post("/hospitals", verifyToken, createHospital);
+
+// UPDATE Hospital
+router.put("/hospitals/:id", updateHospital);
 
 // Get all users with validation status
 router.get("/all-users", getAllUsers);
@@ -166,5 +245,6 @@ router.put("/change-password", verifyToken, async (req, res) => {
       .json({ message: "Error changing password", error: error.message });
   }
 });
+
 
 module.exports = router;

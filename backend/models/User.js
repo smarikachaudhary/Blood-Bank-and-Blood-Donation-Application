@@ -75,6 +75,7 @@ const UserSchema = new mongoose.Schema(
       type: String, // This will store the file path
       default: null,
     },
+
     bloodGroupCard: {
       type: String, // This will store the file path
       default: null,
@@ -83,6 +84,7 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+
   },
   { timestamps: true }
 );

@@ -3,7 +3,9 @@ const bcrypt = require("bcryptjs");
 const User = require("../models/User");
 const dotenv = require("dotenv");
 const { sendVerificationCode, welcomeEmail } = require("../middlewares/email");
+
 const { createNotification } = require("./notificationController");
+
 
 dotenv.config();
 
@@ -20,6 +22,7 @@ const registerController = async (req, res) => {
       });
     }
 
+
     // For Google login, skip password validation
     if (!req.body.isGoogleLogin) {
       // Validate password length and complexity
@@ -33,6 +36,7 @@ const registerController = async (req, res) => {
         });
       }
     }
+
 
     if (!req.body.role) {
       return res.status(400).send({
@@ -108,6 +112,9 @@ const registerController = async (req, res) => {
     req.body.password = hashedPassword;
 
 
+    // Generate email verification code
+
+
     const phoneRegex = /^98\d{8}$/;
     if (!phoneRegex.test(req.body.phone)) {
       return res.status(400).send({
@@ -120,14 +127,28 @@ const registerController = async (req, res) => {
     // Remove any manual hashing here!
 
     // Generate verification code
+
     const verificationCode = Math.floor(
       100000 + Math.random() * 900000
     ).toString();
 
+
+    // Save user in the database
+    const user = new User({
+
     // Create user object
     const userData = {
+
       ...req.body,
       verificationCode,
+
+    });
+
+    await user.save();
+
+    // Send verification code to user
+    sendVerificationCode(user.email, verificationCode);
+
       // For Google login, set status to true as email is already verified
       status: req.body.isGoogleLogin ? true : false,
     };
@@ -160,6 +181,7 @@ const registerController = async (req, res) => {
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
+
 
     return res.status(201).send({
       success: true,
@@ -239,6 +261,9 @@ const loginController = async (req, res) => {
       });
     }
 
+
+    // Generate JWT
+
     if (!isGoogleLogin) {
       if (!password || password.trim() === "") {
         return res.status(400).send({
@@ -260,14 +285,17 @@ const loginController = async (req, res) => {
       }
     }
 
+
     const token = jwt.sign(
       { userId: user._id, role: user.role, email: user.email },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }
     );
 
+
     user.lastLogin = Date.now();
     await user.save();
+
 
     return res.status(200).send({
       success: true,
@@ -293,7 +321,11 @@ const loginController = async (req, res) => {
 // GET CURRENT USER
 const currentUserController = async (req, res) => {
   try {
+
+    const user = await User.findById(req.user.userId); // Getting user from decoded JWT
+
     const user = await User.findById(req.user.userId);
+
     return res.status(200).send({
       success: true,
       message: "User Fetched Successfully",
@@ -313,6 +345,7 @@ const currentUserController = async (req, res) => {
 const getAllUsersController = async (req, res) => {
   try {
     const users = await User.find();
+
     if (!users.length) {
       return res.status(404).json({
         success: false,

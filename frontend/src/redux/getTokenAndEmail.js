@@ -10,6 +10,7 @@ export const getTokenAndEmail = () => {
       console.log("Decoded token payload:", decoded);
 
 
+
       // First try to get values from the token (more secure)
       let email = decoded.email || null;
       let role = decoded.role || null;
@@ -26,6 +27,7 @@ export const getTokenAndEmail = () => {
       if (!email || !role || !userId) {
         console.error("Missing fields in user data.");
 
+
       const email = decoded.email || null;
       const role = decoded.role || null;
       const userId = decoded.userId || null;
@@ -40,6 +42,7 @@ export const getTokenAndEmail = () => {
     } catch (error) {
       console.error("Error decoding token:", error);
 
+
       // If we can't decode the token but have a role in localStorage, 
       // create a minimal user object
       const storedRole = localStorage.getItem("role");
@@ -53,6 +56,7 @@ export const getTokenAndEmail = () => {
           token: token
         };
       }
+
 
       return null;
     }
