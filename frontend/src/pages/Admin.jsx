@@ -9,7 +9,7 @@ const Home = () => {
   useEffect(() => {
     const sidebar = document.querySelector('.sidebar');
     if (sidebar) {
-      setIsSidebarCollapsed(sidebar.classList.contains('w-[80px]'));
+      setIsSidebarCollapsed(sidebar.classList.contains('w-[80px]')); 
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [useLocation()]); // Detect when location changes

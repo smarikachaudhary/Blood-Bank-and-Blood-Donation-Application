@@ -3,42 +3,37 @@ import { useState, useRef } from "react";
 
 const AdminNavbar = () => {
   const [query, setQuery] = useState("");
-  const [activeDropdown, setActiveDropdown] = useState(null); // Single state for active dropdown
-  const inputRef = useRef(null); // Reference for the input
+  const [activeDropdown, setActiveDropdown] = useState(null);
+  const inputRef = useRef(null);
 
   const handleSearch = (e) => {
     e.preventDefault();
     if (query.trim()) {
-      console.log(`Searching for: ${query}`); // Replace with actual search logic
+      console.log(`Searching for: ${query}`);
     } else {
       console.log("Please enter a search query");
     }
   };
 
   const handleSearchIconClick = () => {
-    inputRef.current.focus(); // Focus the input when the icon is clicked
+    inputRef.current.focus();
   };
 
   const toggleDropdown = (dropdown) => {
     setActiveDropdown((prevState) =>
-      prevState === dropdown ? null : dropdown // Toggle the dropdown, close if already open
+      prevState === dropdown ? null : dropdown
     );
   };
 
   const handleLogout = () => {
     console.log("Logging out...");
-    // Add your logout logic here
   };
 
   return (
-    <div className="bg-[#c5a37d] h-[60px] flex items-center justify-between px-6 shadow-md fixed top-0 left-0 right-0 z-10">
+    <div className="bg-gray-100 h-[60px] flex items-center justify-between px-6 shadow-md fixed top-0 left-0 right-0 z-10">
       {/* Left Section: Logo */}
       <div className="flex items-center space-x-2">
-        <img
-          src="/Logo.png" // Replace with your logo URL
-          alt="Logo"
-          className="w-[100px] h-[40px]"
-        />
+        <img src="/Logo.png" alt="Logo" className="w-[100px] h-[40px]" />
       </div>
 
       {/* Center Section: Search Bar */}
@@ -48,10 +43,10 @@ const AdminNavbar = () => {
       >
         <FaSearch
           className="text-gray-400 mr-2 cursor-pointer"
-          onClick={handleSearchIconClick} // Focus input when icon is clicked
+          onClick={handleSearchIconClick}
         />
         <input
-          ref={inputRef} // Attach ref to input
+          ref={inputRef}
           type="text"
           placeholder="Search now"
           value={query}
@@ -66,7 +61,7 @@ const AdminNavbar = () => {
         <div className="relative">
           <FaEnvelope
             className="text-lg cursor-pointer"
-            onClick={() => toggleDropdown("messages")} // Toggle messages dropdown
+            onClick={() => toggleDropdown("messages")}
           />
           {activeDropdown === "messages" && (
             <div className="absolute right-0 mt-2 w-[200px] bg-white text-black shadow-lg rounded-md">
@@ -89,7 +84,8 @@ const AdminNavbar = () => {
             className="text-lg cursor-pointer"
             onClick={() => toggleDropdown("notifications")} // Toggle notifications dropdown
           />
-          <span className="absolute top-0 right-0 bg-red-600 rounded-full w-2 h-2"></span> {/* Notification indicator */}
+          <span className="absolute top-0 right-0 bg-red-600 rounded-full w-2 h-2"></span>{" "}
+          {/* Notification indicator */}
           {activeDropdown === "notifications" && (
             <div className="absolute right-0 mt-2 w-[200px] bg-white text-black shadow-lg rounded-md">
               <div className="px-4 py-2 hover:bg-gray-200 cursor-pointer">

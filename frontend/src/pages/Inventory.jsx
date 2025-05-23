@@ -13,8 +13,10 @@ import {
 import AdminNavbar from "../components/AdminNavbar";
 import API from "../redux/API";
 import { getTokenAndEmail } from "../redux/getTokenAndEmail";
+
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+
 
 const AdminInventory = () => {
   const [inventory, setInventory] = useState([]);
@@ -80,6 +82,7 @@ const AdminInventory = () => {
     try {
       const response = await API.delete(`/inventory/${id}`, {
         headers: {
+
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
       });
@@ -172,6 +175,18 @@ const AdminInventory = () => {
         navigate("/login");
         return;
       }
+
+          Authorization: `Bearer ${localStorage.getItem("token")}`, // Ensure token is included
+        },
+      });
+
+      console.log("Deleted successfully:", response.data);
+      setInventory(inventory.filter((item) => item._id !== id));
+    } catch (error) {
+      console.error("Error deleting inventory:", error);
+    }
+  };
+
 
       // Validate quantity
       if (editInventory?.quantity < 0) {
@@ -286,7 +301,11 @@ const AdminInventory = () => {
       minWidth: 80,
       renderCell: (params) => (
         <FaTrash
+
           className="text-red-500 cursor-pointer hover:text-red-700 transition-colors"
+
+          className="text-red-500 cursor-pointer m-2"
+
           onClick={() => handleDelete(params.row._id)}
         />
       ),
