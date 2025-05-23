@@ -1,17 +1,35 @@
 const mongoose = require("mongoose");
 
-const DonorSchema = mongoose.Schema({
-  name: { type: String, require: true },
-  email: { type: String, require: true },
-  address: { type: String },
-  address: { type: String },
-  phone: { type: String },
-  bloodgroup: { type: String },
-  date: { type: String },
-  disease: { type: String },
-  age: { type: Number },
-  bloodpressure: { type: Number },
-  status: { type: String, default: 0 },
-});
+const DonorSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: true,
+    },
+    email: {
+      type: String,
+      required: true,
+      unique: true,
+    },
+    phone: {
+      type: String,
+      required: true,
+    },
+    address: {
+      type: String,
+      required: true,
+    },
+    bloodType: {
+      type: String,
+      required: true,
+    },
+    status: {
+      type: String,
+      enum: ["pending", "approved"],
+      default: "approved",
+    },
+  },
+  { timestamps: true }
+);
 
 module.exports = mongoose.model("Donor", DonorSchema);

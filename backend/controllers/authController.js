@@ -1,17 +1,18 @@
-// const CryptoJS = require("crypto-js");
 const jwt = require("jsonwebtoken");
-const User = require("../models/User");
 const bcrypt = require("bcryptjs");
+const User = require("../models/User");
 const dotenv = require("dotenv");
 const { sendVerificationCode, welcomeEmail } = require("../middlewares/email");
+const { createNotification } = require("./notificationController");
+
 dotenv.config();
 
-//REGISTER USER
+// REGISTER USER
 const registerController = async (req, res) => {
+  console.log("Register request body:", req.body);
   try {
     const existingUser = await User.findOne({ email: req.body.email });
 
-    // Check if user already exists
     if (existingUser) {
       return res.status(400).send({
         success: false,
@@ -19,7 +20,20 @@ const registerController = async (req, res) => {
       });
     }
 
-    // Validate required fields for role
+    // For Google login, skip password validation
+    if (!req.body.isGoogleLogin) {
+      // Validate password length and complexity
+      const passwordValidationError =
+        /^(?=.*[A-Z])(?=.*\d)(?=.*[a-zA-Z]).{6,}$/;
+      if (!passwordValidationError.test(req.body.password)) {
+        return res.status(400).send({
+          success: false,
+          message:
+            "Password must contain at least one uppercase letter, one number, and a mix of characters.",
+        });
+      }
+    }
+
     if (!req.body.role) {
       return res.status(400).send({
         success: false,
@@ -27,35 +41,22 @@ const registerController = async (req, res) => {
       });
     }
 
-    if (req.body.role === "admin" && !req.body.adminName) {
+    const roleErrors = {
+      admin: "Admin name is required for the admin role.",
+      donor: "Donor name is required for the donor role.",
+      recipient: "Recipient name is required for the recipient role.",
+    };
+
+    if (!req.body[`${req.body.role}Name`]) {
       return res.status(400).send({
         success: false,
-        message: "Admin name is required for the admin role.",
+        message: roleErrors[req.body.role],
       });
     }
 
-    if (req.body.role === "donor" && !req.body.donorName) {
-      return res.status(400).send({
-        success: false,
-        message: "Donor name is required for the donor role.",
-      });
-    }
-
-    if (req.body.role === "recipient" && !req.body.recipientName) {
-      return res.status(400).send({
-        success: false,
-        message: "Recipient name is required for the recipient role.",
-      });
-    }
-
-    if (req.body.role === "hospital" && !req.body.hospitalName) {
-      return res.status(400).send({
-        success: false,
-        message: "Hospital name is required for the hospital role.",
-      });
-    }
 
     // Validate email format
+
     const emailRegex = /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/;
     if (!emailRegex.test(req.body.email)) {
       return res.status(400).send({
@@ -63,6 +64,14 @@ const registerController = async (req, res) => {
         message: "Please provide a valid email address.",
       });
     }
+
+    // Only require password for non-Google signups
+    const isGoogle =
+      req.body.isGoogleLogin === true || req.body.isGoogleLogin === "true";
+    if (isGoogle && (!req.body.password || req.body.password.trim() === "")) {
+      req.body.password = Math.random().toString(36).slice(-8) + "A1";
+    }
+
 
     // Validate password length
     const passwordValidationError = /^(?=.*[A-Z])(?=.*\d)(?=.*[a-zA-Z]).{6,}$/;
@@ -75,6 +84,7 @@ const registerController = async (req, res) => {
     }
 
     // Validate address
+
     if (!req.body.address) {
       return res.status(400).send({
         success: false,
@@ -82,38 +92,85 @@ const registerController = async (req, res) => {
       });
     }
 
-    // Validate phone number format
-    const phoneRegex = /^\+?\d{7,15}$/;
+
+    const phoneRegex = /^98\d{8}$/;
     if (!phoneRegex.test(req.body.phone)) {
       return res.status(400).send({
         success: false,
-        message: "Please provide a valid phone number.",
+        message:
+          "Please provide a valid 10-digit phone number starting with 98.",
       });
     }
-
-    //email verification
-    const verificationCode = Math.floor(
-      100000 + Math.random() * 900000
-    ).toString();
 
     // Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(req.body.password, salt);
     req.body.password = hashedPassword;
 
-    // Save new user with verification code
-    const user = new User({
+
+    const phoneRegex = /^98\d{8}$/;
+    if (!phoneRegex.test(req.body.phone)) {
+      return res.status(400).send({
+        success: false,
+        message:
+          "Please provide a valid 10-digit phone number starting with 98.",
+      });
+    }
+
+    // Remove any manual hashing here!
+
+    // Generate verification code
+    const verificationCode = Math.floor(
+      100000 + Math.random() * 900000
+    ).toString();
+
+    // Create user object
+    const userData = {
       ...req.body,
-      password: hashedPassword,
       verificationCode,
-    });
+      // For Google login, set status to true as email is already verified
+      status: req.body.isGoogleLogin ? true : false,
+    };
+
+    // Create new user instance
+    const user = new User(userData);
+
+    // Save user - password will be hashed by pre-save middleware
     await user.save();
-    sendVerificationCode(user.email, verificationCode);
+
+    // Create notification for new user
+    await createNotification(
+      "new_user",
+      `New ${user.role} registered: ${user[`${user.role}Name`]}`,
+      {
+        userId: user._id,
+        name: user[`${user.role}Name`],
+        role: user.role,
+      }
+    );
+
+    // Only send verification code for non-Google login
+    if (!req.body.isGoogleLogin) {
+      sendVerificationCode(user.email, verificationCode);
+    }
+
+    // Generate token for immediate login (especially useful for Google login)
+    const token = jwt.sign(
+      { userId: user._id, role: user.role, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
 
     return res.status(201).send({
       success: true,
       message: "User registered successfully!",
-      user,
+      user: {
+        _id: user._id,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+      },
+      token,
     });
   } catch (error) {
     console.log(error);
@@ -125,12 +182,11 @@ const registerController = async (req, res) => {
   }
 };
 
-// email verification
+// VERIFY EMAIL
 const verifyEmail = async (req, res) => {
   try {
     const { code } = req.body;
 
-    // Find the user with the verification code
     const user = await User.findOne({ verificationCode: code });
 
     if (!user) {
@@ -139,19 +195,16 @@ const verifyEmail = async (req, res) => {
         .json({ success: false, message: "Invalid or Expired Code" });
     }
 
-    // Check if the user is already verified
     if (user.status) {
       return res
         .status(400)
         .json({ success: false, message: "Email is already verified." });
     }
 
-    // Mark user as verified and clear the verification code
     user.status = true;
     user.verificationCode = undefined;
     await user.save();
 
-    // Send a welcome email
     await welcomeEmail(user.email, user.role);
 
     return res
@@ -165,63 +218,82 @@ const verifyEmail = async (req, res) => {
   }
 };
 
-//LOGIN USER
+// LOGIN USER
 const loginController = async (req, res) => {
   try {
-    const user = await User.findOne({ email: req.body.email });
+    const { email, password, role, isGoogleLogin } = req.body;
+
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(404).send({
         success: false,
-        message: "Invalid Email",
+        message: "User not found. Please register first.",
       });
     }
 
-    // Compare password
-    const isPasswordCorrect = await bcrypt.compare(
-      req.body.password,
-      user.password
-    );
-    if (!isPasswordCorrect) {
-      return res.status(401).send({
-        success: false,
-        message: "Incorrect password!",
-      });
-    }
-
-    // Validate role
-    if (req.body.role !== user.role) {
+    // Only check role if it was explicitly provided in the request
+    if (role && role !== user.role) {
       return res.status(403).send({
         success: false,
         message: `Incorrect role. You are registered as a ${user.role}.`,
       });
     }
 
-    // Generate JWT
-    const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "1d",
-    });
+    if (!isGoogleLogin) {
+      if (!password || password.trim() === "") {
+        return res.status(400).send({
+          success: false,
+          message: "Password is required for login.",
+        });
+      }
 
-    // Return success response
+      const isPasswordCorrect = await bcrypt.compare(
+        password.toString(),
+        user.password
+      );
+
+      if (!isPasswordCorrect) {
+        return res.status(401).send({
+          success: false,
+          message: "Incorrect password!",
+        });
+      }
+    }
+
+    const token = jwt.sign(
+      { userId: user._id, role: user.role, email: user.email },
+      process.env.JWT_SECRET,
+      { expiresIn: "1d" }
+    );
+
+    user.lastLogin = Date.now();
+    await user.save();
+
     return res.status(200).send({
       success: true,
       message: "Login Successful!",
       token,
-      user,
+      user: {
+        _id: user._id,
+        email: user.email,
+        role: user.role,
+        status: user.status,
+      },
     });
   } catch (error) {
-    console.error(error);
+    console.error("Login error:", error);
     res.status(500).send({
       success: false,
       message: "Error in login API",
-      error,
+      error: error.message,
     });
   }
 };
 
-//GET CURRENT USER
+// GET CURRENT USER
 const currentUserController = async (req, res) => {
   try {
-    const user = await User.findOne({ _id: req.body.userId });
+    const user = await User.findById(req.user.userId);
     return res.status(200).send({
       success: true,
       message: "User Fetched Successfully",
@@ -231,8 +303,34 @@ const currentUserController = async (req, res) => {
     console.log(error);
     return res.status(500).send({
       success: false,
-      message: "unable to get current user",
+      message: "Unable to get current user",
       error,
+    });
+  }
+};
+
+// GET ALL USERS
+const getAllUsersController = async (req, res) => {
+  try {
+    const users = await User.find();
+    if (!users.length) {
+      return res.status(404).json({
+        success: false,
+        message: "No users found.",
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      message: "Users fetched successfully!",
+      users,
+    });
+  } catch (error) {
+    console.error("Error fetching users:", error.message);
+    return res.status(500).json({
+      success: false,
+      message: "Error fetching users.",
+      error: error.message,
     });
   }
 };
@@ -242,4 +340,5 @@ module.exports = {
   loginController,
   currentUserController,
   verifyEmail,
+  getAllUsersController,
 };

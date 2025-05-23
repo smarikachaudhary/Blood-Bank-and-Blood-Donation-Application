@@ -40,6 +40,10 @@ export const userRegister = createAsyncThunk(
   "auth/register",
   async (
     {
+
+
+      // adminName,
+
       donorName,
       recipientName,
       phone,
@@ -53,6 +57,9 @@ export const userRegister = createAsyncThunk(
   ) => {
     try {
       const { data } = await API.post("/auth/register", {
+
+        // adminName,
+
         donorName,
         recipientName,
         phone,

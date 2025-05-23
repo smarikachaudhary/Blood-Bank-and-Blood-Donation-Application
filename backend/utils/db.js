@@ -1,19 +1,32 @@
-const dotenv = require("dotenv");
 const mongoose = require("mongoose");
-dotenv.config();
-
-//DB
-const DB =
-  "mongodb+srv://smarikachaudhary10:smarika.chaudhary@cluster0.unr4u.mongodb.net/test?retryWrites=true&w=majority&appName=Cluster0";
 
 const dbConnection = async () => {
-  try {
-    await mongoose.connect(DB).then(() => {
-      console.log("Database connected Successfully");
-    });
-  } catch (error) {
-    console.log(error);
-    setTimeout(dbConnection, 5000);
+  const DB = process.env.DB;
+
+  if (!DB) {
+    console.error(
+      "Error: DB connection string is not defined in the .env file."
+    );
+    process.exit(1); // Exit if DB is undefined
+  }
+
+  let retries = 5;
+
+  while (retries) {
+    try {
+      await mongoose.connect(DB);
+      console.log("Database connected successfully");
+      break; // Exit the loop if connection is successful
+    } catch (error) {
+      console.error("Database connection failed. Retrying...", error.message);
+      retries -= 1;
+      console.log(`Retries left: ${retries}`);
+      if (retries === 0) {
+        console.error("All retries failed. Exiting...");
+        process.exit(1); // Exit if retries are exhausted
+      }
+      await new Promise((res) => setTimeout(res, 5000)); // Wait 5 seconds before retrying
+    }
   }
 };
 
