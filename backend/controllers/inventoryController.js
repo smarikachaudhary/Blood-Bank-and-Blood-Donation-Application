@@ -1,12 +1,10 @@
 const mongoose = require("mongoose");
-const inventoryModel = require("../models/inventoryModel");
+const inventoryModel = require("../models/InventoryModel");
 const userModel = require("../models/User");
 const donorModel = require("../models/Donor");
 const recipientModel = require("../models/Recipient");
-const hospitalModel = require("../models/Hospital");
 const Donor = require("../models/Donor");
 const Recipient = require("../models/Recipient");
-const Hospital = require("../models/Hospital");
 
 // Create Inventory Entry (Admin only)
 const createInventoryController = async (req, res) => {
@@ -19,7 +17,6 @@ const createInventoryController = async (req, res) => {
       quantity,
       donatedBy,
       donatedTo,
-      hospital,
     } = req.body;
 
     console.log("Received Request Body:", req.body);
@@ -57,22 +54,16 @@ const createInventoryController = async (req, res) => {
       }
     }
 
-    // Validate recipient or hospital for 'out' transactions
+    // Validate recipient for 'out' transactions
     let recipient = null;
-    let hospitalData = null;
     if (inventoryType === "out") {
       recipient = donatedTo
         ? await recipientModel.findOne({ email: donatedTo })
         : null;
       if (!recipient) {
-        hospitalData = hospital
-          ? await hospitalModel.findOne({ email: hospital })
-          : null;
-      }
-      if (!recipient && !hospitalData) {
         return res.status(400).json({
           success: false,
-          message: "Invalid recipient or hospital email",
+          message: "Invalid recipient email",
         });
       }
 
@@ -105,7 +96,6 @@ const createInventoryController = async (req, res) => {
       email,
       donatedBy: donor ? donor._id : null,
       donatedTo: recipient ? recipient._id : null,
-      hospital: hospitalData ? hospitalData._id : null,
     });
     await inventory.save();
 
@@ -140,17 +130,14 @@ const getInventoryController = async (req, res) => {
       .find()
       .populate("donatedBy", "email")
       .populate("donatedTo", "email")
-      .populate("hospital", "email")
       .sort({ createdAt: -1 });
     const formattedInventory = inventory.map((record) => {
       if (record.inventoryType === "in") {
         record.donatedBy = record.donatedBy ? record.donatedBy.email : null;
         record.donatedTo = null;
-        record.hospital = null;
       } else if (record.inventoryType === "out") {
         record.donatedBy = null;
         record.donatedTo = record.donatedTo ? record.donatedTo.email : null;
-        record.hospital = record.hospital ? record.hospital.email : null;
       }
 
       return record;
@@ -195,8 +182,58 @@ const deleteInventoryController = async (req, res) => {
   }
 };
 
+const getBloodAnalyticsController = async (req, res) => {
+  try {
+    const bloodTypes = ["A+", "A-", "B+", "B-", "O+", "O-", "AB+", "AB-"];
+    const analytics = {};
+
+    // Initialize all blood types with 0
+    bloodTypes.forEach((type) => {
+      analytics[type] = 0;
+    });
+
+    // Calculate total available blood for each type
+    const results = await inventoryModel.aggregate([
+      {
+        $group: {
+          _id: "$bloodType",
+          totalIn: {
+            $sum: {
+              $cond: [{ $eq: ["$inventoryType", "in"] }, "$quantity", 0],
+            },
+          },
+          totalOut: {
+            $sum: {
+              $cond: [{ $eq: ["$inventoryType", "out"] }, "$quantity", 0],
+            },
+          },
+        },
+      },
+    ]);
+
+    // Calculate available units for each blood type
+    results.forEach((result) => {
+      const available = result.totalIn - result.totalOut;
+      analytics[result._id] = available > 0 ? available : 0;
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: analytics,
+    });
+  } catch (error) {
+    console.error("Error in blood analytics:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Error calculating blood analytics",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = {
   createInventoryController,
   getInventoryController,
   deleteInventoryController,
+  getBloodAnalyticsController,
 };
